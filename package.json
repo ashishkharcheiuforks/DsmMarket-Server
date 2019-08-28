@@ -1,0 +1,30 @@
+{
+  "name": "dsmmarket",
+  "version": "0.0.1",
+  "description": "대덕소프트웨어 마이스터고등학교 교내 장터",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DsmMarket/NodeServer.git"
+  },
+  "author": "Plan-B",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DsmMarket/NodeServer/issues"
+  },
+  "dependencies": {
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.9.1",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "sequelize": "^5.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
