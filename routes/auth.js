@@ -25,7 +25,9 @@ router.post('/join', async (req, res, next) => {
             grade,
             gender,
         });
-        res.sendStatus(200);
+        return res.status(200).json({
+            message : 0,
+        });
     } catch (err) {
         console.error(err);
         return next(err);
@@ -42,39 +44,68 @@ router.post('/login', (req, res, next) => {
         }
         const access_token = jwt.sign({
             email : user.email,
+            nick : user.nick,
         },
         process.env.JWT_SECRET_KEY,
         {
-            expiresIn : '300',
+            expiresIn : '5m',
         });
         const refresh_token = jwt.sign({
             email : user.email,
+            nick : user.nick,
         },
         process.env.JWT_SECRET_KEY,
         {
-            expiresIn : '2m',
+            expiresIn : '10m',
         });
         return res.status(200).json({
             access_token,
             refresh_token,
+            message : 1,
         });
     })(req, res, next);
 });
+router.get('/account/auth/login', verifyToken, (req, res) => {
+    return res.status(200).json({
+        message : 1,
+    });
+});
 router.post('/token', (req, res, next) => {
     try {
-        const email = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY).email;
+        const user = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
         const access_token = jwt.sign({
-            email,
+            email : user.email,
+            nick : user.nick,
         },
         process.env.JWT_SECRET_KEY,
         {
-            expiresIn : '300',
+            expiresIn : '5m',
         });
         return res.status(200).json({
             access_token,
+            message : 5,
         });
     } catch (err) {
-        return res.sendStatus(403);
+        return res.status(401).json({
+            errorCode : 4,
+        })
+    }
+});
+router.post('/password', async (req, res, next) => {
+    const {email, password} = req.body;
+    try {
+        const exUser = await User.findOne({where : {email}});
+        if (exUser) {
+            const result = await bcrypt.compare(password, exUser.password);
+            if (result) {
+                return res.status(200).json({
+                    message : 2,
+                });
+            }
+        }
+    } catch (err) {
+        console.error(err);
+        return next(err);
     }
 });
 module.exports = router;
