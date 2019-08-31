@@ -6,6 +6,9 @@ const passport = require('passport');
 require('dotenv').config();
 
 const authRouter = require('./routes/auth');
+const editRouter = require('./routes/edit');
+const mailRouter = require('./routes/mail');
+const getRouter = require('./routes/get');
 const passportConfig = require('./passport');
 
 const app = express();
@@ -19,12 +22,18 @@ app.use(express.json());
 app.use(express.urlencoded({extended : false}));
 
 app.use('/account/auth', authRouter);
+app.use('/account/edit', editRouter);
+app.use('/account/get', getRouter);
+app.use('/mail', mailRouter);
 
 app.use((req, res, next) => {
     const err = new Error('Not Found');
-    res.status(404).json({
-        message : err,
-    });
+    err.status = 404;
+    next(err);
+});
+
+app.use((err, req, res, next) => {
+    res.status(err.status || 500).send(err);
 });
 
 app.listen(app.get('port'), () => {
