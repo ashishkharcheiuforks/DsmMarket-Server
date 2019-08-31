@@ -1,15 +1,14 @@
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-exports.verifyToken = async (req, res, next) => {
+exports.verifyToken = (req, res, next) => {
     try {
-        const isValid = jwt.verify(req.body.access_token, process.env.JWT_SECRET_KEY);
-        if (isValid) {
-            next();
-        } else {
-            res.sendStatus(403);
-        }
+        const isValid = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
+        req.app.set('user', isValid);
+        next();
     } catch (err) {
-        console.loe(err);
-        next(err);
+        res.status(401).json({
+            errorCode : 3,
+        });
     }
 };
