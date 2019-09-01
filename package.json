@@ -16,10 +16,13 @@
     "url": "https://github.com/DsmMarket/NodeServer/issues"
   },
   "dependencies": {
+    "aws-sdk": "^2.521.0",
     "dotenv": "^8.1.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.9.1",
+    "multer": "^1.4.2",
+    "multer-s3": "^2.9.0",
     "nodemailer": "^6.3.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
