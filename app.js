@@ -9,6 +9,7 @@ const authRouter = require('./routes/auth');
 const editRouter = require('./routes/edit');
 const mailRouter = require('./routes/mail');
 const getRouter = require('./routes/get');
+const postRouter = require('./routes/post');
 const passportConfig = require('./passport');
 
 const app = express();
@@ -23,7 +24,8 @@ app.use(express.urlencoded({extended : false}));
 
 app.use('/account/auth', authRouter);
 app.use('/account/edit', editRouter);
-app.use('/account/get', getRouter);
+app.use('/get', getRouter);
+app.use('/post', postRouter);
 app.use('/mail', mailRouter);
 
 app.use((req, res, next) => {
