@@ -3,6 +3,7 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const {User} = require('../models');
+const {verifyToken} = require('./middlewares');
 require('dotenv').config();
 
 const router = express.Router();
@@ -34,7 +35,7 @@ router.post('/join', async (req, res, next) => {
     }
 });
 router.post('/login', (req, res, next) => {
-    passport.authenticate('local', (authError, user) => {
+    passport.authenticate('local', {session : false}, (authError, user) => {
         if (authError) {
             console.error(authError);
             return next(authError);
@@ -42,26 +43,34 @@ router.post('/login', (req, res, next) => {
         if (!user) {
             return res.status(403).json({errorCode : 2});
         }
-        const access_token = jwt.sign({
-            email : user.email,
-            nick : user.nick,
-        },
-        process.env.JWT_SECRET_KEY,
-        {
-            expiresIn : '5m',
-        });
-        const refresh_token = jwt.sign({
-            email : user.email,
-            nick : user.nick,
-        },
-        process.env.JWT_SECRET_KEY,
-        {
-            expiresIn : '10m',
-        });
-        return res.status(200).json({
-            access_token,
-            refresh_token,
-            message : 1,
+        return req.login(user, {session : false}, (loginError) => {
+            if (loginError) {
+                console.error(loginError);
+                next(loginError);
+            }
+            const access_token = jwt.sign({
+                email : user.email,
+                nick : user.nick,
+                userId : user.id,
+            },
+            process.env.JWT_SECRET_KEY,
+            {
+                expiresIn : '500000000m',
+            });
+            const refresh_token = jwt.sign({
+                email : user.email,
+                nick : user.nick,
+                userId : user.id,
+            },
+            process.env.JWT_SECRET_KEY,
+            {
+                expiresIn : '10m',
+            });
+            return res.status(200).json({
+                access_token,
+                refresh_token,
+                message : 1,
+            });
         });
     })(req, res, next);
 });
@@ -76,6 +85,7 @@ router.post('/token', (req, res, next) => {
         const access_token = jwt.sign({
             email : user.email,
             nick : user.nick,
+            userId : user.id,
         },
         process.env.JWT_SECRET_KEY,
         {

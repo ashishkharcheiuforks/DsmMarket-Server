@@ -56,8 +56,7 @@ router.post('/send', async (req, res, next) => {
     })
 });
 router.post('/confirm', async (req, res, next) => {
-    const email = req.body.email;
-    const code = req.body.code;
+    const {email, code} = req.body;
     try {
         const isSame = await Auth.findOne({where : {email}});
         if (isSame.code === Number(code)) {
