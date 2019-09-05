@@ -38,7 +38,7 @@ router.post('/add/deal', verifyToken, upload.array('img'), async (req, res, next
 router.post('/add/rent', verifyToken, upload.single('img'), async (req, res, next) => {
     const img = req.file.location;
     const {title, content, category} = req.body;
-    const price = Number(req.body.price).toLocaleString();
+    const price = req.body.price;
     const tags = req.body.tag.match(/#[^\s]*/g);
     const userId = req.app.get('user').userId;
     try {
