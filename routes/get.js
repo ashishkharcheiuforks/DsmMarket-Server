@@ -1,12 +1,140 @@
 const express = require('express');
 const {verifyToken} = require('./middlewares');
+const {DealPost, RentPost} = require('../models');
 
 const router = express.Router();
+const referTable = {};
 
 router.get('/nick', verifyToken, (req, res) => {
     return res.status(200).json({
         nick : req.app.get('user').nick,
     });
+});
+router.get('/list/deal', verifyToken, async (req, res, next) => {
+    const user = req.app.get('user').nick;
+    const page = Number(req.query.page);
+    const pagesize = Number(req.query.pagesize);
+    const search = req.query.search;
+    try {
+        if (referTable.hasOwnProperty(user)) {
+            if (referTable[user].count >= page) {
+                referTable[user].count = page;
+                referTable[user].limit = pagesize;
+                referTable[user].offset = 0;
+            } else {
+                referTable[user].count = page;
+                referTable[user].limit = pagesize;
+                referTable[user].offset += pagesize;
+            }
+        } else {
+            referTable[user] = {
+                count : page,
+                limit : pagesize,
+                offset : 0
+            };    
+        }
+        const posts = await DealPost.findAll({
+            offset : referTable[user].offset,
+            limit : referTable[user].limit,
+            order : [['createdAt', 'DESC']],
+        });
+        const list = [];
+        if (search) {
+            posts.forEach(post => {
+                if (post.title.match(decodeURI(search))) {
+                    list.push({
+                        postId : post.id,
+                        title : post.title,
+                        img : post.img,
+                        createdAt : post.createdAt.toString(),
+                        price : post.price,
+                    });
+                }
+            });
+        } else {
+            posts.forEach(post => {
+                list.push({
+                    postId : post.id,
+                    title : post.title,
+                    img : post.img,
+                    createdAt : post.createdAt.toString(),
+                    price : post.price,
+                });
+            });
+        }
+        return res.status(200).json({
+            list,
+            message : 9,
+        });
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
+});
+router.get('/list/rent', verifyToken, async (req, res, next) => {
+    const user = req.app.get('user').nick;
+    const page = Number(req.query.page);
+    const pagesize = Number(req.query.pagesize);
+    const search = req.query.search;
+    try {
+        if (referTable.hasOwnProperty(user)) {
+            if (referTable[user].count >= page) {
+                referTable[user].count = page;
+                referTable[user].limit = pagesize;
+                referTable[user].offset = 0;
+            } else {
+                referTable[user].count = page;
+                referTable[user].limit = pagesize;
+                referTable[user].offset += pagesize;
+            }
+        } else {
+            referTable[user] = {
+                count : page,
+                limit : pagesize,
+                offset : 0
+            };    
+        }
+        const posts = await RentPost.findAll({
+            offset : referTable[user].offset,
+            limit : referTable[user].limit,
+            order : [['createdAt', 'DESC']],
+        });
+        const list = [];
+        if (search) {
+            posts.forEach(post => {
+                const flag = Number(post.price.split('/')[0]);
+                const price = post.price.split('/')[1];
+                if (post.title.match(decodeURI(search))) {
+                    list.push({
+                        postId : post.id,
+                        title : post.title,
+                        img : post.img,
+                        createdAt : post.createdAt,
+                        price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                    });
+                }
+            });
+        } else {
+            posts.forEach(post => {
+                const flag = Number(post.price.split('/')[0]);
+                const price = post.price.split('/')[1];
+                list.push({
+                    postId : post.id,
+                    title : post.title,
+                    img : post.img,
+                    createdAt : post.createdAt,
+                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                });
+            });
+        }
+        return res.status(200).json({
+            list,
+            message : 9,
+        });
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
 });
 router.get('/category', verifyToken, (req, res) => {
     return res.status(200).json({
