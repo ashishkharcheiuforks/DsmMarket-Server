@@ -63,7 +63,7 @@ router.post('/add/rent', verifyToken, upload.single('img'), async (req, res, nex
         next(err);
     }
 });
-router.post('/interest', verifyToken, async (req, res, next) => {
+router.post('set/interest', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     const postId = req.body.postId;
     try {
