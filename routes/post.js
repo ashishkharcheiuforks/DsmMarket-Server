@@ -1,7 +1,7 @@
 const upload = require('../config/multerConfig');
 const express = require('express');
 const {verifyToken} = require('./middlewares');
-const {DealPost, RentPost, Hashtag, Interest} = require('../models');
+const {User, DealPost, RentPost, Hashtag, Interest} = require('../models');
 
 const router = express.Router();
 
@@ -63,14 +63,28 @@ router.post('/add/rent', verifyToken, upload.single('img'), async (req, res, nex
         next(err);
     }
 });
-router.post('set/interest', verifyToken, async (req, res, next) => {
+router.post('/set/interest', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
-    const postId = req.body.postId;
+    const {postId, type} = req.body;
     try {
         await Interest.create({
             userId,
             postId,
+            type,
         });
+        return res.status(200).json({
+            message : 8,
+        });
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
+});
+router.post('/unset/interest', verifyToken, async (req, res, next) => {
+    const userId = req.app.get('user').userId;
+    const {postId, type} = req.body;
+    try {
+        await Interest.destroy({where : {userId, postId, type}});
         return res.status(200).json({
             message : 8,
         });
