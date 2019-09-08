@@ -5,7 +5,29 @@ const {DealPost, RentPost} = require('../models');
 const router = express.Router();
 const referTable = {};
 
-router.get('/nick', verifyToken, (req, res) => {
+router.post('/token', (req, res, next) => {
+    try {
+        const user = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
+        const access_token = jwt.sign({
+            email : user.email,
+            nick : user.nick,
+            userId : user.id,
+        },
+        process.env.JWT_SECRET_KEY,
+        {
+            expiresIn : '5m',
+        });
+        return res.status(200).json({
+            access_token,
+            message : 5,
+        });
+    } catch (err) {
+        return res.status(401).json({
+            errorCode : 4,
+        })
+    }
+});
+router.get('/user', verifyToken, (req, res) => {
     return res.status(200).json({
         nick : req.app.get('user').nick,
     });
@@ -134,6 +156,20 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
     } catch (err) {
         console.error(err);
         next(err);
+    }
+});
+router.get('/post', verifyToken, async (req, res, next) => {
+    const {id, type} = req.body;
+    const userId = req.app.get('user').userId;
+    try {
+        if (Number(type)) {
+            const {img, postId, title, content, createdAt, price} = await DealPost.findOne({
+                where : {id},
+            })
+        }
+    } catch (err) {
+        console.error(err);
+        return next(err);
     }
 });
 router.get('/category', verifyToken, (req, res) => {
