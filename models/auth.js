@@ -5,10 +5,14 @@ module.exports = (sequelize, DataTypes) => {
             allowNull : false,
             unique : true,
         },
-        code : {
+        mailCode : {
             type : DataTypes.INTEGER.UNSIGNED,
-            allowNull : false,
+            allowNull : true,
         },
+        authCode : {
+            type : DataTypes.INTEGER.UNSIGNED,
+            allowNull : true,
+        }
     }, {
         timestamp : true,
         tableName : 'auth',
