@@ -5,7 +5,7 @@ const {User, DealPost, RentPost, Hashtag, Interest} = require('../models');
 
 const router = express.Router();
 
-router.post('/add/deal', verifyToken, upload.array('img'), async (req, res, next) => {
+router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) => {
     let urls = '';
     req.files.forEach(img => {
         urls += img.location + '\n';
@@ -35,7 +35,7 @@ router.post('/add/deal', verifyToken, upload.array('img'), async (req, res, next
         next(err);
     }
 });
-router.post('/add/rent', verifyToken, upload.single('img'), async (req, res, next) => {
+router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) => {
     const img = req.file.location;
     const {title, content, category} = req.body;
     const price = req.body.price;
@@ -63,7 +63,7 @@ router.post('/add/rent', verifyToken, upload.single('img'), async (req, res, nex
         next(err);
     }
 });
-router.post('/set/interest', verifyToken, async (req, res, next) => {
+router.patch('/interest', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     const {postId, type} = req.body;
     try {
@@ -80,7 +80,7 @@ router.post('/set/interest', verifyToken, async (req, res, next) => {
         next(err);
     }
 });
-router.post('/unset/interest', verifyToken, async (req, res, next) => {
+router.patch('/uninterest', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     const {postId, type} = req.body;
     try {
