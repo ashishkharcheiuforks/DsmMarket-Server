@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const {verifyToken} = require('./middlewares');
 const {DealPost, RentPost} = require('../models');
 
@@ -24,7 +25,7 @@ router.get('/token', (req, res, next) => {
     } catch (err) {
         return res.status(401).json({
             errorCode : 4,
-        })
+        });
     }
 });
 router.get('/user', verifyToken, (req, res) => {
@@ -255,6 +256,28 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 createdAt,
                 price,
                 message : 9,
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+});
+router.get('/comment', verifyToken, async (req, res, next) => {
+    const {postId, type} = req.body;
+    try {
+        if (Number(type)) {
+            const result = await Comment.findAll({
+                where : {rentPostId : postId},
+                attributes : ['nick', 'content', 'createdAt'],
+                order : ['createdAt', 'DESC'],
+            });
+            console.log(result);
+        } else {
+            const result = await Comment.findAll({
+                where : {dealPostId : postId},
+                attributes : ['nick', 'content', 'createdAt'],
+                order : ['createdAt', 'DESC'],
             });
         }
     } catch (err) {
