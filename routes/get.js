@@ -5,7 +5,7 @@ const {DealPost, RentPost} = require('../models');
 const router = express.Router();
 const referTable = {};
 
-router.post('/token', (req, res, next) => {
+router.get('/token', (req, res, next) => {
     try {
         const user = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
         const access_token = jwt.sign({
@@ -36,7 +36,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
     const user = req.app.get('user').nick;
     const page = Number(req.query.page);
     const pagesize = Number(req.query.pagesize);
-    const search = req.query.search;
+    const {search, category} = req.query;
     try {
         if (referTable.hasOwnProperty(user)) {
             if (referTable[user].count >= page) {
@@ -55,15 +55,28 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                 offset : 0
             };    
         }
-        const posts = await DealPost.findAll({
-            offset : referTable[user].offset,
-            limit : referTable[user].limit,
-            order : [['createdAt', 'DESC']],
-        });
         const list = [];
-        if (search) {
-            posts.forEach(post => {
-                if (post.title.match(decodeURI(search))) {
+        if (category) {
+            const posts = await DealPost.findAll({
+                where : {category},
+                offset : referTable[user].offset,
+                limit : referTable[user].limit,
+                order : [['createdAt', 'DESC']],
+            });
+            if (search) {
+                posts.forEach(post => {
+                    if (post.title.match(decodeURI(search))) {
+                        list.push({
+                            postId : post.id,
+                            title : post.title,
+                            img : post.img,
+                            createdAt : post.createdAt.toString(),
+                            price : post.price,
+                        });
+                    }
+                });
+            } else {
+                posts.forEach(post => {
                     list.push({
                         postId : post.id,
                         title : post.title,
@@ -71,18 +84,37 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                         createdAt : post.createdAt.toString(),
                         price : post.price,
                     });
-                }
-            });
-        } else {
-            posts.forEach(post => {
-                list.push({
-                    postId : post.id,
-                    title : post.title,
-                    img : post.img,
-                    createdAt : post.createdAt.toString(),
-                    price : post.price,
                 });
+            }
+        } else {
+            const posts = await DealPost.findAll({
+                offset : referTable[user].offset,
+                limit : referTable[user].limit,
+                order : [['createdAt', 'DESC']],
             });
+            if (search) {
+                posts.forEach(post => {
+                    if (post.title.match(decodeURI(search))) {
+                        list.push({
+                            postId : post.id,
+                            title : post.title,
+                            img : post.img,
+                            createdAt : post.createdAt.toString(),
+                            price : post.price,
+                        });
+                    }
+                });
+            } else {
+                posts.forEach(post => {
+                    list.push({
+                        postId : post.id,
+                        title : post.title,
+                        img : post.img,
+                        createdAt : post.createdAt.toString(),
+                        price : post.price,
+                    });
+                });
+            }
         }
         return res.status(200).json({
             list,
@@ -90,7 +122,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
         });
     } catch (err) {
         console.error(err);
-        next(err);
+        return next(err);
     }
 });
 router.get('/list/rent', verifyToken, async (req, res, next) => {
@@ -116,17 +148,32 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
                 offset : 0
             };    
         }
-        const posts = await RentPost.findAll({
-            offset : referTable[user].offset,
-            limit : referTable[user].limit,
-            order : [['createdAt', 'DESC']],
-        });
         const list = [];
-        if (search) {
-            posts.forEach(post => {
-                const flag = Number(post.price.split('/')[0]);
-                const price = post.price.split('/')[1];
-                if (post.title.match(decodeURI(search))) {
+        if (category) {
+            const posts = await RentPost.findAll({
+                where : {category},
+                offset : referTable[user].offset,
+                limit : referTable[user].limit,
+                order : [['createdAt', 'DESC']],
+            });
+            if (search) {
+                posts.forEach(post => {
+                    const flag = Number(post.price.split('/')[0]);
+                    const price = post.price.split('/')[1];
+                    if (post.title.match(decodeURI(search))) {
+                        list.push({
+                            postId : post.id,
+                            title : post.title,
+                            img : post.img,
+                            createdAt : post.createdAt,
+                            price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                        });
+                    }
+                });
+            } else {
+                posts.forEach(post => {
+                    const flag = Number(post.price.split('/')[0]);
+                    const price = post.price.split('/')[1];
                     list.push({
                         postId : post.id,
                         title : post.title,
@@ -134,20 +181,41 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
                         createdAt : post.createdAt,
                         price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
                     });
-                }
-            });
-        } else {
-            posts.forEach(post => {
-                const flag = Number(post.price.split('/')[0]);
-                const price = post.price.split('/')[1];
-                list.push({
-                    postId : post.id,
-                    title : post.title,
-                    img : post.img,
-                    createdAt : post.createdAt,
-                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
                 });
+            }
+        } else {
+            const posts = await RentPost.findAll({
+                offset : referTable[user].offset,
+                limit : referTable[user].limit,
+                order : [['createdAt', 'DESC']],
             });
+            if (search) {
+                posts.forEach(post => {
+                    const flag = Number(post.price.split('/')[0]);
+                    const price = post.price.split('/')[1];
+                    if (post.title.match(decodeURI(search))) {
+                        list.push({
+                            postId : post.id,
+                            title : post.title,
+                            img : post.img,
+                            createdAt : post.createdAt,
+                            price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                        });
+                    }
+                });
+            } else {
+                posts.forEach(post => {
+                    const flag = Number(post.price.split('/')[0]);
+                    const price = post.price.split('/')[1];
+                    list.push({
+                        postId : post.id,
+                        title : post.title,
+                        img : post.img,
+                        createdAt : post.createdAt,
+                        price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                    });
+                });
+            }
         }
         return res.status(200).json({
             list,
@@ -155,7 +223,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
         });
     } catch (err) {
         console.error(err);
-        next(err);
+        return next(err);
     }
 });
 router.get('/post', verifyToken, async (req, res, next) => {
