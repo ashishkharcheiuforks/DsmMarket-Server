@@ -1,9 +1,7 @@
 const morgan = require('morgan');
 const {sequelize} = require('./models');
-const path = require('path');
 const express = require('express');
 const passport = require('passport');
-require('dotenv').config();
 
 const authRouter = require('./routes/auth');
 const editRouter = require('./routes/edit');
