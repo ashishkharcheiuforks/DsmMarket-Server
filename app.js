@@ -3,9 +3,8 @@ const {sequelize} = require('./models');
 const express = require('express');
 const passport = require('passport');
 
+const accountRouter = require('./routes/account');
 const authRouter = require('./routes/auth');
-const editRouter = require('./routes/edit');
-const mailRouter = require('./routes/mail');
 const getRouter = require('./routes/get');
 const postRouter = require('./routes/post');
 const passportConfig = require('./passport');
@@ -20,11 +19,10 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
 
-app.use('/account/auth', authRouter);
-app.use('/account/edit', editRouter);
-app.use('/get', getRouter);
+app.use('/account', accountRouter);
+app.use('/auth', authRouter);
+app.use('/', getRouter);
 app.use('/post', postRouter);
-app.use('/mail', mailRouter);
 
 app.use((req, res, next) => {
     const err = new Error('Not Found');
