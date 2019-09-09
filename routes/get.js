@@ -66,7 +66,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
             });
             if (search) {
                 posts.forEach(post => {
-                    if (post.title.match(decodeURI(search))) {
+                    if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
                         list.push({
                             postId : post.id,
                             title : post.title,
@@ -95,7 +95,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
             });
             if (search) {
                 posts.forEach(post => {
-                    if (post.title.match(decodeURI(search))) {
+                    if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
                         list.push({
                             postId : post.id,
                             title : post.title,
@@ -130,7 +130,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
     const user = req.app.get('user').nick;
     const page = Number(req.query.page);
     const pagesize = Number(req.query.pagesize);
-    const search = req.query.search;
+    const {search, category} = req.query;
     try {
         if (referTable.hasOwnProperty(user)) {
             if (referTable[user].count >= page) {
@@ -161,7 +161,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
                 posts.forEach(post => {
                     const flag = Number(post.price.split('/')[0]);
                     const price = post.price.split('/')[1];
-                    if (post.title.match(decodeURI(search))) {
+                    if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
                         list.push({
                             postId : post.id,
                             title : post.title,
@@ -194,7 +194,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
                 posts.forEach(post => {
                     const flag = Number(post.price.split('/')[0]);
                     const price = post.price.split('/')[1];
-                    if (post.title.match(decodeURI(search))) {
+                    if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
                         list.push({
                             postId : post.id,
                             title : post.title,
