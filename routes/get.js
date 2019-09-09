@@ -159,13 +159,35 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/post', verifyToken, async (req, res, next) => {
-    const {id, type} = req.body;
-    const userId = req.app.get('user').userId;
+    const {postId, type} = req.body;
     try {
         if (Number(type)) {
-            const {img, postId, title, content, createdAt, price} = await DealPost.findOne({
-                where : {id},
-            })
+            const {img, id, title, content, createdAt, price, possible_time} = await RentPost.findOne({
+                where : {id : postId},
+            });
+            return res.status(200).json({
+                img,
+                id,
+                title,
+                content,
+                createdAt,
+                price,
+                possible_time,
+                message : 9,
+            });
+        } else {
+            const {img, id, title, content, createdAt, price} = await DealPost.findOne({
+                where : {id : postId},
+            });
+            return res.status(200).json({
+                img,
+                id,
+                title,
+                content,
+                createdAt,
+                price,
+                message : 9,
+            });
         }
     } catch (err) {
         console.error(err);
