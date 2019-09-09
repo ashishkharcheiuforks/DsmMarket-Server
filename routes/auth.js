@@ -59,31 +59,31 @@ router.post('/login', (req, res, next) => {
         });
     })(req, res, next);
 });
-router.get('/login', verifyToken, (req, res) => {
+router.get('/login', verifyToken, async (req, res) => {
     const password = req.query.password;
     try {
         if (password) {
             const email = req.app.get('user').email;
             const authCode = Math.floor(Math.random() * (1000000 - 100000)) + 100000;
-            const origin_password = await User.findOne({
+            const user = await User.findOne({
                 where : {email},
-                attribute : ['password'],
+                attributes : ['password'],
             });
-            const isSame = await bcrypt.compare(password, origin_password);
+            const isSame = await bcrypt.compare(password, user.password);
             if (isSame) {
                 const exEmail = await Auth.findOne({where : {email}});
-                    if (exEmail) {
-                        await Auth.update({
-                            authCode,
-                        }, {
-                            where : {email},
-                        });
-                    } else {
-                        await Auth.create({
-                            email,
-                            authCode,
-                        });
-                    }
+                if (exEmail) {
+                    await Auth.update({
+                        authCode,
+                    }, {
+                        where : {email},
+                    });
+                } else {
+                    await Auth.create({
+                        email,
+                        authCode,
+                    });
+                }
                 return res.status(200).json({
                     authCode,
                     email,
