@@ -1,7 +1,7 @@
 const upload = require('../config/multerConfig');
 const express = require('express');
 const {verifyToken} = require('./middlewares');
-const {User, DealPost, RentPost, Hashtag, Interest} = require('../models');
+const {Comment, DealPost, RentPost, Hashtag, Interest} = require('../models');
 
 const router = express.Router();
 
@@ -32,7 +32,7 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
         });
     } catch (err) {
         console.error(err);
-        next(err);
+        return next(err);
     }
 });
 router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) => {
@@ -60,7 +60,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
         });
     } catch (err) {
         console.error(err);
-        next(err);
+        return next(err);
     }
 });
 router.patch('/interest', verifyToken, async (req, res, next) => {
@@ -77,7 +77,7 @@ router.patch('/interest', verifyToken, async (req, res, next) => {
         });
     } catch (err) {
         console.error(err);
-        next(err);
+        return next(err);
     }
 });
 router.patch('/uninterest', verifyToken, async (req, res, next) => {
@@ -90,7 +90,31 @@ router.patch('/uninterest', verifyToken, async (req, res, next) => {
         });
     } catch (err) {
         console.error(err);
-        next(err);
+        return next(err);
+    }
+});
+router.post('/comment', async (req, res, next) => {
+    const {postId, nick, content, type} = req.body;
+    try {
+        if (Number(type)) {
+            await Comment.create({
+                nick,
+                content,
+                rentPostId : postId,
+            });
+        } else {
+            await Comment.create({
+                nick,
+                content,
+                dealPostId : postId,
+            });
+        }
+        return res.status(200).json({
+            message : 12,
+        });
+    } catch (err) {
+        console.error(err);
+        return next(err);
     }
 });
 module.exports = router;
