@@ -32,7 +32,7 @@ router.post('/join', async (req, res, next) => {
         return next(err);
     }
 });
-router.patch('/password', async (req, res, next) => {
+router.patch('/password', verifyToken, async (req, res, next) => {
     const email = req.app.get('user').email;
     const authCode = req.body.authCode;
     try {
@@ -40,7 +40,7 @@ router.patch('/password', async (req, res, next) => {
             where : {email},
             attributes : ['authCode'],
         });
-        if (isSame === Number(authCode)) {
+        if (isSame.authCode === Number(authCode)) {
             const password = await bcrypt.hash(req.body.password, 12);
             await User.update({
                 password,
@@ -64,7 +64,7 @@ router.patch('/nick', verifyToken, async (req, res, next) => {
     const origin_nick = req.app.get('user').nick;
     const nick = req.body.nick;
     try {
-        const exNick = await User.findOne({where : {origin_nick}});
+        const exNick = await User.findOne({where : {nick}});
         if (exNick) {
             return res.status(403).json({
                 errorCode : 1,
