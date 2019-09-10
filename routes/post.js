@@ -16,6 +16,7 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
     const userId = req.app.get('user').userId;
     try {
         const post = await DealPost.create({
+            author : req.app.get('user').nick,
             img : urls,
             title,
             content,
@@ -43,6 +44,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
     const userId = req.app.get('user').userId;
     try {
         const post = await RentPost.create({
+            author : req.app.get('user').nick,
             img,
             title,
             content,
