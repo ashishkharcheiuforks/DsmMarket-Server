@@ -70,7 +70,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                         list.push({
                             postId : post.id,
                             title : post.title,
-                            img : post.img,
+                            img : post.img.split('\n')[0],
                             createdAt : post.createdAt.toString(),
                             price : post.price,
                         });
@@ -81,7 +81,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                     list.push({
                         postId : post.id,
                         title : post.title,
-                        img : post.img,
+                        img : post.img.split('\n')[0],
                         createdAt : post.createdAt.toString(),
                         price : post.price,
                     });
@@ -99,7 +99,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                         list.push({
                             postId : post.id,
                             title : post.title,
-                            img : post.img,
+                            img : post.img.split('\n')[0],
                             createdAt : post.createdAt.toString(),
                             price : post.price,
                         });
@@ -110,7 +110,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                     list.push({
                         postId : post.id,
                         title : post.title,
-                        img : post.img,
+                        img : post.img.split('\n')[0],
                         createdAt : post.createdAt.toString(),
                         price : post.price,
                     });
@@ -228,35 +228,49 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/post', verifyToken, async (req, res, next) => {
-    const {postId, type} = req.body;
+    const {postId, type} = req.query;
     try {
         if (Number(type)) {
-            const {img, id, title, content, createdAt, price, possible_time} = await RentPost.findOne({
+            const post = await RentPost.findOne({
                 where : {id : postId},
             });
-            return res.status(200).json({
-                img,
-                id,
-                title,
-                content,
-                createdAt,
-                price,
-                possible_time,
-                message : 9,
-            });
+            if (post) {
+                return res.status(200).json({
+                    img : post.img,
+                    id : post.id,
+                    author : post.author,
+                    title : post.title,
+                    content : post.content,
+                    createdAt : post.createdAt,
+                    price : post.price,
+                    possible_time : post.possible_time,
+                    message : 9,
+                });
+            } else {
+                return res.status(410).json({
+                    errorCode : 11,
+                });
+            }
         } else {
-            const {img, id, title, content, createdAt, price} = await DealPost.findOne({
+            const post = await DealPost.findOne({
                 where : {id : postId},
             });
-            return res.status(200).json({
-                img,
-                id,
-                title,
-                content,
-                createdAt,
-                price,
-                message : 9,
-            });
+            if (post) {
+                return res.status(200).json({
+                    img : post.img,
+                    id : post.id,
+                    author : post.author,
+                    title : post.title,
+                    content : post.content,
+                    createdAt : post.createdAt,
+                    price : post.price,
+                    message : 9,
+                });
+            } else {
+                return res.status(410).json({
+                    errorCode : 11,
+                });
+            }
         }
     } catch (err) {
         console.error(err);
@@ -267,17 +281,28 @@ router.get('/comment', verifyToken, async (req, res, next) => {
     const {postId, type} = req.body;
     try {
         if (Number(type)) {
-            const result = await Comment.findAll({
+            const {nick, content, createdAt} = await Comment.findAll({
                 where : {rentPostId : postId},
                 attributes : ['nick', 'content', 'createdAt'],
                 order : ['createdAt', 'DESC'],
             });
-            console.log(result);
+            return res.status(200).json({
+                nick,
+                content,
+                createdAt,
+                message : 9,
+            });
         } else {
-            const result = await Comment.findAll({
+            const {nick, content, createdAt} = await Comment.findAll({
                 where : {dealPostId : postId},
                 attributes : ['nick', 'content', 'createdAt'],
                 order : ['createdAt', 'DESC'],
+            });
+            return res.status(200).json({
+                nick,
+                content,
+                createdAt,
+                message : 9,
             });
         }
     } catch (err) {
