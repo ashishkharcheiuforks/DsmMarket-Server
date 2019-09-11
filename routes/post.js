@@ -12,7 +12,7 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
     });
     const {title, content, category} = req.body;
     const price = Number(req.body.price).toLocaleString();
-    const tags = req.body.tag.match(/#[^\s]*/g);
+    const tags = req.body.tag ? req.body.tag.match(/#[^\s]*/g) : null;
     const userId = req.app.get('user').userId;
     try {
         const post = await DealPost.create({
@@ -24,10 +24,12 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
             category,
             userId,
         });
-        const hashtags = await Promise.all(tags.map(tag => Hashtag.findOrCreate({
-            where : {title : tag.slice(1).toLowerCase()},
-        })));
-        await post.addHashtags(hashtags.map(tag => tag[0]));
+        if (tags) {
+            const hashtags = await Promise.all(tags.map(tag => Hashtag.findOrCreate({
+                where : {title : tag.slice(1).toLowerCase()},
+            })));
+            await post.addHashtags(hashtags.map(tag => tag[0]));
+        }
         res.status(200).json({
             message : 7,
         });
@@ -40,7 +42,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
     const img = req.file.location;
     const {title, content, category} = req.body;
     const price = req.body.price;
-    const tags = req.body.tag.match(/#[^\s]*/g);
+    const tags = req.body.tag ? req.body.tag.match(/#[^\s]*/g) : null;
     const userId = req.app.get('user').userId;
     try {
         const post = await RentPost.create({
@@ -53,10 +55,12 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
             userId,
             possible_time : req.body.possible_time ? req.body.possible_time : null,
         });
-        const hashtags = await Promise.all(tags.map(tag => Hashtag.findOrCreate({
-            where : {title : tag.slice(1).toLowerCase()},
-        })));
-        await post.addHashtags(hashtags.map(tag => tag[0]));
+        if (tags) {    
+            const hashtags = await Promise.all(tags.map(tag => Hashtag.findOrCreate({
+                where : {title : tag.slice(1).toLowerCase()},
+            })));
+            await post.addHashtags(hashtags.map(tag => tag[0]));
+        }
         res.status(200).json({
             message : 7,
         });
@@ -69,14 +73,25 @@ router.patch('/interest', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     const {postId, type} = req.body;
     try {
-        await Interest.create({
-            userId,
-            postId,
-            type,
+        const isExist = Number(type) ? await RentPost.findOne({
+            where : {id : postId},
+        }) : await DealPost.findOne({
+            where : {id : postId},
         });
-        return res.status(200).json({
-            message : 8,
-        });
+        if (isExist) {
+            await Interest.create({
+                userId,
+                postId,
+                type,
+            });
+            return res.status(200).json({
+                message : 8,
+            });
+        } else {
+            return res.status(410).json({
+                errorCode : 11,
+            });
+        }
     } catch (err) {
         console.error(err);
         return next(err);
