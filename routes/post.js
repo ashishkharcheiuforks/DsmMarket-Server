@@ -69,14 +69,25 @@ router.patch('/interest', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     const {postId, type} = req.body;
     try {
-        await Interest.create({
-            userId,
-            postId,
-            type,
+        const isExist = Number(type) ? await RentPost.findOne({
+            where : {id : postId},
+        }) : await DealPost.findOne({
+            where : {id : postId},
         });
-        return res.status(200).json({
-            message : 8,
-        });
+        if (isExist) {
+            await Interest.create({
+                userId,
+                postId,
+                type,
+            });
+            return res.status(200).json({
+                message : 8,
+            });
+        } else {
+            return res.status(410).json({
+                errorCode : 11,
+            });
+        }
     } catch (err) {
         console.error(err);
         return next(err);
