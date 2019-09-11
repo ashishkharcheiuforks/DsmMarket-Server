@@ -235,13 +235,13 @@ router.get('/post', verifyToken, async (req, res, next) => {
             const post = await RentPost.findOne({
                 where : {id : postId},
             });
-            const comments = await Comment.findAll({
-                where : {rentPostId : postId},
-            });
-            const isInterest = await Interest.findOne({
-                where : {userId, postId},
-            });
             if (post) {
+                const comments = await Comment.findAll({
+                    where : {rentPostId : postId},
+                });
+                const isInterest = await Interest.findOne({
+                    where : {userId, postId},
+                });
                 return res.status(200).json({
                     img : post.img,
                     id : post.id,
@@ -264,15 +264,21 @@ router.get('/post', verifyToken, async (req, res, next) => {
             const post = await DealPost.findOne({
                 where : {id : postId},
             });
-            const comments = await Comment.findAll({
-                where : {dealPostId : postId},
-            });
-            const isInterest = await Interest.findOne({
-                where : {userId, postId},
-            });
             if (post) {
+                const comments = await Comment.findAll({
+                    where : {dealPostId : postId},
+                });
+                const isInterest = await Interest.findOne({
+                    where : {userId, postId},
+                });
+                const urls = [];
+                post.img.split('\n').forEach(url => {
+                    if (url !== '') {
+                        urls.push(url);
+                    }
+                });
                 return res.status(200).json({
-                    img : post.img,
+                    img : urls,
                     id : post.id,
                     author : post.author,
                     title : post.title,
