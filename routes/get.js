@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const {verifyToken} = require('./middlewares');
-const {DealPost, RentPost} = require('../models');
+const {DealPost, RentPost, Comment} = require('../models');
 
 const router = express.Router();
 const referTable = {};
@@ -234,6 +234,9 @@ router.get('/post', verifyToken, async (req, res, next) => {
             const post = await RentPost.findOne({
                 where : {id : postId},
             });
+            const comments = await Comment.findAll({
+                where : {rentPostId : postId},
+            });
             if (post) {
                 return res.status(200).json({
                     img : post.img,
@@ -244,6 +247,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     createdAt : post.createdAt,
                     price : post.price,
                     possible_time : post.possible_time,
+                    comments : comments.length,
                     message : 9,
                 });
             } else {
@@ -255,6 +259,9 @@ router.get('/post', verifyToken, async (req, res, next) => {
             const post = await DealPost.findOne({
                 where : {id : postId},
             });
+            const comments = await Comment.findAll({
+                where : {dealPostId : postId},
+            });
             if (post) {
                 return res.status(200).json({
                     img : post.img,
@@ -264,6 +271,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content : post.content,
                     createdAt : post.createdAt,
                     price : post.price,
+                    comments : comments.length,
                     message : 9,
                 });
             } else {
