@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const {verifyToken} = require('./middlewares');
-const {DealPost, RentPost, Comment} = require('../models');
+const {DealPost, RentPost, Comment, Interest} = require('../models');
 
 const router = express.Router();
 const referTable = {};
@@ -228,6 +228,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/post', verifyToken, async (req, res, next) => {
+    const userId = req.app.get('user').userId;
     const {postId, type} = req.query;
     try {
         if (Number(type)) {
@@ -236,6 +237,9 @@ router.get('/post', verifyToken, async (req, res, next) => {
             });
             const comments = await Comment.findAll({
                 where : {rentPostId : postId},
+            });
+            const isInterest = await Interest.findOne({
+                where : {userId, postId},
             });
             if (post) {
                 return res.status(200).json({
@@ -248,6 +252,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     price : post.price,
                     possible_time : post.possible_time,
                     comments : comments.length,
+                    interest : isInterest ? true : false,
                     message : 9,
                 });
             } else {
@@ -262,6 +267,9 @@ router.get('/post', verifyToken, async (req, res, next) => {
             const comments = await Comment.findAll({
                 where : {dealPostId : postId},
             });
+            const isInterest = await Interest.findOne({
+                where : {userId, postId},
+            });
             if (post) {
                 return res.status(200).json({
                     img : post.img,
@@ -272,6 +280,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     createdAt : post.createdAt,
                     price : post.price,
                     comments : comments.length,
+                    interest : isInterest ? true : false,
                     message : 9,
                 });
             } else {
@@ -286,31 +295,56 @@ router.get('/post', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/comment', verifyToken, async (req, res, next) => {
-    const {postId, type} = req.body;
+    const {postId, type} = req.query;
     try {
-        if (Number(type)) {
-            const {nick, content, createdAt} = await Comment.findAll({
-                where : {rentPostId : postId},
-                attributes : ['nick', 'content', 'createdAt'],
-                order : ['createdAt', 'DESC'],
-            });
-            return res.status(200).json({
-                nick,
-                content,
-                createdAt,
-                message : 9,
-            });
+        const isExist = Number(type) ? await RentPost.findOne({
+            where : {id : postId},
+        }) : await DealPost.findOne({
+            where : {id : postId},
+        });
+        if (isExist) {
+            if (Number(type)) {
+                const comments = await Comment.findAll({
+                    where : {rentPostId : postId},
+                    attributes : ['nick', 'content', 'createdAt'],
+                    order : [['createdAt', 'DESC']],
+                });
+                const list = [];
+                comments.forEach(comment => {
+                    const {nick, content, createdAt} = comment;
+                    list.push({
+                        nick,
+                        content,
+                        createdAt,
+                    });
+                });
+                return res.status(200).json({
+                    list,
+                    message : 9,
+                });
+            } else {
+                const comments = await Comment.findAll({
+                    where : {dealPostId : postId},
+                    attributes : ['nick', 'content', 'createdAt'],
+                    order : [['createdAt', 'DESC']],
+                });
+                const list = [];
+                comments.forEach(comment => {
+                    const {nick, content, createdAt} = comment;
+                    list.push({
+                        nick,
+                        content,
+                        createdAt,
+                    });
+                });
+                return res.status(200).json({
+                    list,
+                    message : 9,
+                });
+            }
         } else {
-            const {nick, content, createdAt} = await Comment.findAll({
-                where : {dealPostId : postId},
-                attributes : ['nick', 'content', 'createdAt'],
-                order : ['createdAt', 'DESC'],
-            });
-            return res.status(200).json({
-                nick,
-                content,
-                createdAt,
-                message : 9,
+            return res.status(410).json({
+                errorCode : 11,
             });
         }
     } catch (err) {
