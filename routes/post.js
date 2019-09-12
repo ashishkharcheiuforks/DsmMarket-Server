@@ -111,17 +111,19 @@ router.patch('/uninterest', verifyToken, async (req, res, next) => {
     }
 });
 router.post('/comment', verifyToken, async (req, res, next) => {
-    const nick = req.app.get('user').nick;
+    const {email, nick} = req.app.get('user');
     const {postId, content, type} = req.body;
     try {
         if (Number(type)) {
             await Comment.create({
+                email,
                 nick,
                 content,
                 rentPostId : postId,
             });
         } else {
             await Comment.create({
+                email,
                 nick,
                 content,
                 dealPostId : postId,
