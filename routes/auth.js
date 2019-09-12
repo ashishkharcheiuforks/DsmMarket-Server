@@ -154,9 +154,12 @@ router.post('/mail', async (req, res, next) => {
     try {
         const isSame = await Auth.findOne({where : {email}});
         if (isSame.mailCode === Number(mailCode)) {
+            await Auth.destroy({
+                where : {email},
+            });
             return res.status(200).json({
                 message : 4,
-            })
+            });
         } else {
             return res.status(403).json({
                 errorCode : 5
