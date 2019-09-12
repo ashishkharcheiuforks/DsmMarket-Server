@@ -110,8 +110,9 @@ router.patch('/uninterest', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
-router.post('/comment', async (req, res, next) => {
-    const {postId, nick, content, type} = req.body;
+router.post('/comment', verifyToken, async (req, res, next) => {
+    const nick = req.app.get('user').nick;
+    const {postId, content, type} = req.body;
     try {
         if (Number(type)) {
             await Comment.create({
