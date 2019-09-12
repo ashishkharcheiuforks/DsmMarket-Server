@@ -7,6 +7,7 @@ const accountRouter = require('./routes/account');
 const authRouter = require('./routes/auth');
 const getRouter = require('./routes/get');
 const postRouter = require('./routes/post');
+const reportRouter = require('./routes/report');
 const passportConfig = require('./passport');
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/account', accountRouter);
 app.use('/auth', authRouter);
 app.use('/', getRouter);
 app.use('/post', postRouter);
+app.use('/report', reportRouter);
 
 app.use((req, res, next) => {
     const err = new Error('Not Found');
