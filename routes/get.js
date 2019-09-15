@@ -358,6 +358,65 @@ router.get('/comment', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+router.get('/list/interest', verifyToken, async (req, res, next) => {
+    const type = req.body.type;
+    const userId = req.app.get('user').userId;
+    try {
+        if (Number(type)) {
+            const rentPosts = await Interest.findAll({
+                where : {userId, type},
+                attributes : ['postId'],
+                order : [['createdAt', 'DESC']],
+            });
+            const list = [];
+            rentPosts.forEach(rentPost => {
+                const postId = rentPost.postId;
+                const post = await RentPost.findOne({
+                    where : {postId},
+                });
+                const flag = Number(post.price.split('/')[0]);
+                list.push({
+                    postId,
+                    img : post.img,
+                    title : post.title,
+                    createdAt : post.createdAt,
+                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                });
+            });
+            return res.status(200).json({
+                list,
+                message : 9,
+            });
+        } else {
+            const dealPosts = await Interest.findAll({
+                where : {userId, type},
+                attributes : ['postId'],
+                order : [['createdAt', 'DESC']],
+            });
+            const list = [];
+            dealPosts.forEach(dealPost => {
+                const postId = dealPost.postId;
+                const post = await DealPost.findOne({
+                    where : {postId},
+                });
+                list.push({
+                    postId,
+                    img : post.img,
+                    title : post.title,
+                    createdAt : post.createdAt,
+                    price : post.price,
+                });
+            });
+            return res.status(200).json({
+                list,
+                message : 9,
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
+});
 router.get('/category', verifyToken, (req, res) => {
     return res.status(200).json({
         category: [
