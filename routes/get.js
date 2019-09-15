@@ -359,7 +359,7 @@ router.get('/comment', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/interest', verifyToken, async (req, res, next) => {
-    const type = req.body.type;
+    const type = req.query.type;
     const userId = req.app.get('user').userId;
     try {
         if (Number(type)) {
@@ -401,7 +401,7 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
                 });
                 list.push({
                     postId,
-                    img : post.img,
+                    img : post.img.split('/')[0],
                     title : post.title,
                     createdAt : post.createdAt,
                     price : post.price,
@@ -414,7 +414,60 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
         }
     } catch (err) {
         console.error(err);
-        next(err);
+        return next(err);
+    }
+});
+router.get('/user/list/deal', verifyToken, async (req, res, next) => {
+    const userId = req.app.get('user').userId;
+    try {
+        const posts = await DealPost.findAll({
+            where : {userId},
+            order : [['createdAt', 'DESC']],
+        });
+        const list = [];
+        posts.forEach(post => {
+            list.push({
+                postId,
+                img : post.img.split('/')[0],
+                title : post.title,
+                createdAt : post.createdAt,
+                price : post.price,
+            });
+        });
+        return res.status(200).json({
+            list,
+            message : 9,
+        });
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+});
+router.get('/user/list/rent', verifyToken, async (req, res, next) => {
+    const userId = req.app.get('user').userId;
+    try {
+        const posts = await RentPost.findAll({
+            where : {userId},
+            order : [['createdAt', 'DESC']],
+        });
+        const list = [];
+        posts.forEach(post => {
+            const flag = Number(post.price.split('/')[0]);
+            list.push({
+                postId,
+                img : post.img,
+                title : post.title,
+                createdAt : post.createdAt,
+                price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+            });
+        });
+        return res.status(200).json({
+            list,
+            message : 9,
+        });
+    } catch (err) {
+        console.error(err);
+        return next(err);
     }
 });
 router.get('/category', verifyToken, (req, res) => {
