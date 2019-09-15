@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const {verifyToken} = require('./middlewares');
-const {DealPost, RentPost, Comment, Interest} = require('../models');
+const {DealPost, RentPost, Comment, Interest, Sequelize : {Op}} = require('../models');
 
 const router = express.Router();
 const referTable = {};
@@ -368,19 +368,23 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
                 attributes : ['postId'],
                 order : [['createdAt', 'DESC']],
             });
-            const list = [];
+            const postIds = [];
             rentPosts.forEach(rentPost => {
-                const postId = rentPost.postId;
-                const post = await RentPost.findOne({
-                    where : {postId},
-                });
+                postIds.push(rentPost.postId);
+            });
+            const posts = await RentPost.findAll({
+                where : {id : {[Op.in] : postIds}},
+                order : [['createdAt', 'DESC']],
+            });
+            const list = [];
+            posts.forEach(post => {
                 const flag = Number(post.price.split('/')[0]);
                 list.push({
-                    postId,
+                    postId : post.id,
                     img : post.img,
                     title : post.title,
                     createdAt : post.createdAt,
-                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                    price : flag ? `1시간 당 ${post.price}원` : `1회 당 ${post.price}원`,
                 });
             });
             return res.status(200).json({
@@ -394,13 +398,12 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
                 order : [['createdAt', 'DESC']],
             });
             const list = [];
-            dealPosts.forEach(dealPost => {
-                const postId = dealPost.postId;
+            dealPosts.forEach(async (dealPost) => {
                 const post = await DealPost.findOne({
-                    where : {postId},
+                    where : {id : dealPost.postId},
                 });
                 list.push({
-                    postId,
+                    postId : post.id,
                     img : post.img.split('/')[0],
                     title : post.title,
                     createdAt : post.createdAt,
