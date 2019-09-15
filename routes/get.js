@@ -28,7 +28,7 @@ router.get('/token', (req, res, next) => {
         });
     }
 });
-router.get('/user', verifyToken, (req, res) => {
+router.get('/user/nick', verifyToken, (req, res) => {
     return res.status(200).json({
         nick : req.app.get('user').nick,
     });
