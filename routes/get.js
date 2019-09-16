@@ -384,7 +384,7 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
                     img : post.img,
                     title : post.title,
                     createdAt : post.createdAt,
-                    price : flag ? `1시간 당 ${post.price}원` : `1회 당 ${post.price}원`,
+                    price : flag ? `1시간 당 ${post.price.split('/')[1]}원` : `1회 당 ${post.price.split('/')[1]}원`,
                 });
             });
             return res.status(200).json({
@@ -397,14 +397,19 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
                 attributes : ['postId'],
                 order : [['createdAt', 'DESC']],
             });
+            const postIds = [];
+            dealPosts.forEach(dealPost => {
+                postIds.push(dealPost.postId);
+            });
+            const posts = await DealPost.findAll({
+                where : {id : {[Op.in] : postIds}},
+                order : [['createdAt', 'DESC']],
+            });
             const list = [];
-            dealPosts.forEach(async (dealPost) => {
-                const post = await DealPost.findOne({
-                    where : {id : dealPost.postId},
-                });
+            posts.forEach(post => {
                 list.push({
                     postId : post.id,
-                    img : post.img.split('/')[0],
+                    img : post.img,
                     title : post.title,
                     createdAt : post.createdAt,
                     price : post.price,
