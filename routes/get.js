@@ -425,6 +425,9 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+router.get('/list/related', verifyToken, async (req, res, next) => {
+    
+});
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     try {
@@ -540,7 +543,7 @@ router.get('/category', verifyToken, (req, res) => {
                 "parent": "기타",
                 "body": ["기타"]
             }
-        ]
+        ],
     });
 });
 module.exports = router;
