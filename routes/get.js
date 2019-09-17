@@ -1,7 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const {verifyToken} = require('./middlewares');
-const {DealPost, RentPost, Comment, Interest, Sequelize : {Op}} = require('../models');
+const axios = require('axios');
+const {DealPost, RentPost, Comment, Interest, sequelize, Sequelize : {Op}} = require('../models');
 
 const router = express.Router();
 const referTable = {};
@@ -426,8 +427,56 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/related', verifyToken, async (req, res, next) => {
-    
+    const {category, type} = req.query;
+    try {
+        const list = [];
+        if (Number(type)) {
+            const posts = await RentPost.findAll({
+                where : {category},
+                order : sequelize.random(),
+                limit : 6,
+            });
+            posts.forEach(post => {
+                list.push({
+                    title : post.title,
+                    img : post.img,
+                });
+            });
+        } else {
+            const posts = await DealPost.findAll({
+                where : {category},
+                order : sequelize.random(),
+                limit : 6,
+            });
+            posts.forEach(post => {
+                list.push({
+                    title : post.title,
+                    img : post.img.split('\n')[0],
+                });
+            });
+        }
+        return res.status(200).json({
+            list,
+            message : 9,
+        });
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
 });
+router.get('/list/recommend', verifyToken, async (req, res, next) => {
+    const category = req.query.category;
+    try {
+        const res = await axios.post('/get_log', {
+
+        });
+        const list = [];
+        
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+})
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     try {
