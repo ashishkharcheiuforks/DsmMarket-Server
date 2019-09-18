@@ -110,6 +110,34 @@ router.patch('/post/rent', verifyToken, async (req, res, next) => {
         return next();
     }
 });
+router.delete('/post/deal', verifyToken, async (req, res, next) => {
+    const id = req.body.postId;
+    try {
+        await DealPost.delete({
+            where : {id},
+        });
+        return res.status(200).json({
+            message : 14,
+        });
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+});
+router.delete('/post/rent', verifyToken, async (req, res, next) => {
+    const id = req.body.postId;
+    try {
+        await RentPost.delete({
+            where : {id},
+        });
+        return res.status(200).json({
+            message : 14,
+        });
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+});
 router.patch('/interest', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     const {postId, type} = req.body;
