@@ -10,18 +10,19 @@ const transporter = nodemailer.createTransport({
     auth : {
         user : 'dsmplanb@gmail.com',
         pass : process.env.GMAIL_PASSWORD,
-    }
+    },
 });
 
 router.post('/post', verifyToken, (req, res, next) => {
-    const {postId, type} = req.body;
+    const {postId, type, reason} = req.body;
     const mailOptions = {
         from : 'dsmplanb@gmail.com',
         to : 'dsmplanb@gmail.com',
         subject : moment().format("YYYY년 MM월 DD일 HH시 mm분 게시물 신고"),
         text : `신고자 ID :${req.app.get('user').email}
         게시물 타입 : ${Number(type) ? '대여글' : '거래글'}
-        게시물 ID : ${postId}`,
+        게시물 ID : ${postId}
+        신고사유 : ${reason}`,
     };
     transporter.sendMail(mailOptions, (err, info) => {
         if (err) {
@@ -33,10 +34,8 @@ router.post('/post', verifyToken, (req, res, next) => {
         message : 13,
     });
 });
-
 router.post('/comment', verifyToken, (req, res, next) => {
-
-    const {postId, type, nick, content} = req.body;
+    const {postId, type, nick, reason} = req.body;
     const mailOptions = {
         from : 'dsmplanb@gmail.com',
         to : 'dsmplanb@gmail.com',
@@ -45,7 +44,7 @@ router.post('/comment', verifyToken, (req, res, next) => {
         게시물 타입 : ${Number(type) ? '대여글' : '거래글'}
         게시물 ID : ${postId}
         댓글 작성자 : ${nick}
-        댓글 내용 : ${content}`,
+        사유 : ${reason}`,
     };
     transporter.sendMail(mailOptions, (err, info) => {
         if (err) {

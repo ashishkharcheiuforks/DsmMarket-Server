@@ -467,7 +467,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
 router.get('/list/recommend', verifyToken, async (req, res, next) => {
     const category = req.query.category;
     try {
-        const res = await axios.post('/get_log', {
+        const res = await axios.get('/get_log', {
 
         });
         const list = [];
@@ -476,7 +476,7 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
         console.error(err);
         return next(err);
     }
-})
+});
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     try {
