@@ -69,6 +69,47 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
         return next(err);
     }
 });
+router.patch('/post/deal', verifyToken, async (req, res, next) => {
+    const {postId, title, content, price, tag, category} = req.body;
+    try {
+        await DealPost.update({
+            title,
+            content,
+            price,
+            tag,
+            category,
+        }, {
+            where : {id : postId},
+        });
+        return res.status(200).json({
+            message : 2,
+        });
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+});
+router.patch('/post/rent', verifyToken, async (req, res, next) => {
+    const {postId, title, content, price, tag, category, possible_time} = req.body;
+    try {
+        await RentPost.update({
+            title,
+            content,
+            price,
+            tag,
+            category,
+            possible_time,
+        }, {
+            where : {id : postId},
+        });
+        return res.status(200).json({
+            message : 2,
+        });
+    } catch (err) {
+        console.error(err);
+        return next();
+    }
+});
 router.patch('/interest', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
     const {postId, type} = req.body;
