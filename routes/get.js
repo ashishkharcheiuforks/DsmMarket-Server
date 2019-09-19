@@ -438,6 +438,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
             });
             posts.forEach(post => {
                 list.push({
+                    postId : post.id,
                     title : post.title,
                     img : post.img,
                 });
@@ -450,6 +451,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
             });
             posts.forEach(post => {
                 list.push({
+                    postId : post.id,
                     title : post.title,
                     img : post.img.split('\n')[0],
                 });
