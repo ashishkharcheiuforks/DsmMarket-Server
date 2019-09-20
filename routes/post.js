@@ -110,8 +110,8 @@ router.patch('/post/rent', verifyToken, async (req, res, next) => {
         return next();
     }
 });
-router.delete('/post/deal', verifyToken, async (req, res, next) => {
-    const id = req.body.postId;
+router.delete('/post/deal/:postId', verifyToken, async (req, res, next) => {
+    const id = req.params.postId;
     try {
         await DealPost.delete({
             where : {id},
@@ -124,8 +124,8 @@ router.delete('/post/deal', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
-router.delete('/post/rent', verifyToken, async (req, res, next) => {
-    const id = req.body.postId;
+router.delete('/post/rent/:postId', verifyToken, async (req, res, next) => {
+    const id = req.params.postId;
     try {
         await RentPost.delete({
             where : {id},
