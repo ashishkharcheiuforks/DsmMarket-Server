@@ -12,7 +12,6 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
     });
     const {title, content, category} = req.body;
     const price = Number(req.body.price).toLocaleString();
-    const tags = req.body.tag ? req.body.tag.match(/#[^\s]*/g) : null;
     const userId = req.app.get('user').userId;
     try {
         const post = await DealPost.create({
@@ -24,12 +23,6 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
             category,
             userId,
         });
-        if (tags) {
-            const hashtags = await Promise.all(tags.map(tag => Hashtag.findOrCreate({
-                where : {title : tag.slice(1).toLowerCase()},
-            })));
-            await post.addHashtags(hashtags.map(tag => tag[0]));
-        }
         res.status(200).json({
             message : 7,
         });
@@ -42,7 +35,6 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
     const img = req.file.location;
     const {title, content, category} = req.body;
     const price = req.body.price;
-    const tags = req.body.tag ? req.body.tag.match(/#[^\s]*/g) : null;
     const userId = req.app.get('user').userId;
     try {
         const post = await RentPost.create({
@@ -55,12 +47,6 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
             userId,
             possible_time : req.body.possible_time ? req.body.possible_time : null,
         });
-        if (tags) {    
-            const hashtags = await Promise.all(tags.map(tag => Hashtag.findOrCreate({
-                where : {title : tag.slice(1).toLowerCase()},
-            })));
-            await post.addHashtags(hashtags.map(tag => tag[0]));
-        }
         res.status(200).json({
             message : 7,
         });
@@ -70,13 +56,12 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
     }
 });
 router.patch('/post/deal', verifyToken, async (req, res, next) => {
-    const {postId, title, content, price, tag, category} = req.body;
+    const {postId, title, content, price, category} = req.body;
     try {
         await DealPost.update({
             title,
             content,
             price,
-            tag,
             category,
         }, {
             where : {id : postId},
@@ -90,13 +75,12 @@ router.patch('/post/deal', verifyToken, async (req, res, next) => {
     }
 });
 router.patch('/post/rent', verifyToken, async (req, res, next) => {
-    const {postId, title, content, price, tag, category, possible_time} = req.body;
+    const {postId, title, content, price, category, possible_time} = req.body;
     try {
         await RentPost.update({
             title,
             content,
             price,
-            tag,
             category,
             possible_time,
         }, {
