@@ -16,7 +16,6 @@ db.User = require('./user')(sequelize, Sequelize);
 db.Auth = require('./auth')(sequelize, Sequelize);
 db.DealPost = require('./dealPost')(sequelize, Sequelize);
 db.RentPost = require('./rentPost')(sequelize, Sequelize);
-db.Hashtag = require('./hashtag')(sequelize, Sequelize);
 db.Interest = require('./interest')(sequelize, Sequelize);
 db.Comment = require('./comment')(sequelize, Sequelize);
 
@@ -28,8 +27,4 @@ db.DealPost.hasMany(db.Comment);
 db.Comment.belongsTo(db.DealPost);
 db.RentPost.hasMany(db.Comment);
 db.Comment.belongsTo(db.RentPost);
-db.DealPost.belongsToMany(db.Hashtag, {through : 'dealPostHashtag'});
-db.Hashtag.belongsToMany(db.DealPost, {through : 'dealPostHashtag'});
-db.RentPost.belongsToMany(db.Hashtag, {through : 'rentPostHashtag'});
-db.Hashtag.belongsToMany(db.RentPost, {through : 'rentPostHashtag'});
 module.exports = db;
