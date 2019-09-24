@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull : false,
         }
     }, {
+        charset : 'utf8',
         timestamps : true,
     });
 };
