@@ -251,7 +251,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content : post.content,
                     createdAt : post.createdAt,
                     price : post.price,
-                    possible_time : post.possible_time,
+                    possible_time : post.possible_time ? post.possible_time : '',
                     comments : comments.length,
                     interest : isInterest ? true : false,
                     category : post.category,
