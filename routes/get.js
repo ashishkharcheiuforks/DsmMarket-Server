@@ -237,6 +237,8 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 where : {id : postId},
             });
             if (post) {
+                const flag = Number(post.price.split('/')[0]);
+                const price = post.price.split('/')[1];
                 const comments = await Comment.findAll({
                     where : {rentPostId : postId},
                 });
@@ -250,7 +252,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     title : post.title,
                     content : post.content,
                     createdAt : post.createdAt,
-                    price : post.price,
+                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
                     possible_time : post.possible_time ? post.possible_time : '',
                     comments : comments.length,
                     interest : isInterest ? true : false,
