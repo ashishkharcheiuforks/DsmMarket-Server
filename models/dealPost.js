@@ -25,6 +25,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull : false,
         },
     }, {
+        charset = 'utf8',
+        collation : 'utf8_general_ci',
         timestamps : true,
     });
 };

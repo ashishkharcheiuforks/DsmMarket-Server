@@ -12,5 +12,9 @@ module.exports = (sequelize, DataTypes) => {
             type : DataTypes.INTEGER,
             allowNull : false,
         },
+    }, {
+        charset = 'utf8',
+        collation : 'utf8_general_ci',
+        timestamps : false,
     });
 };
