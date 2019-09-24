@@ -9,6 +9,7 @@ const getRouter = require('./routes/get');
 const postRouter = require('./routes/post');
 const reportRouter = require('./routes/report');
 const passportConfig = require('./passport');
+const cors = require('cors');
 
 const app = express();
 sequelize.sync();
@@ -16,6 +17,7 @@ passportConfig(passport);
 
 app.set('port', process.env.PORT | 8001);
 
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
