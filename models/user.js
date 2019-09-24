@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
             unique : true,
         },
         grade : {
-            type : DataTypes.INTEGER,
+            type : DataTypes.STRING(100),
             allowNull : false,
         },
         gender : {
