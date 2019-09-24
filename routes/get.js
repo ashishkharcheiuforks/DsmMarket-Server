@@ -254,6 +254,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     possible_time : post.possible_time,
                     comments : comments.length,
                     interest : isInterest ? true : false,
+                    category : post.category,
                     message : 9,
                 });
             } else {
@@ -288,6 +289,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     price : post.price,
                     comments : comments.length,
                     interest : isInterest ? true : false,
+                    category : post.category,
                     message : 9,
                 });
             } else {

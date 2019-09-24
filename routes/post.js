@@ -55,7 +55,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
         return next(err);
     }
 });
-router.patch('/post/deal', verifyToken, async (req, res, next) => {
+router.patch('/deal', verifyToken, async (req, res, next) => {
     const {postId, title, content, price, category} = req.body;
     try {
         await DealPost.update({
@@ -74,7 +74,7 @@ router.patch('/post/deal', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
-router.patch('/post/rent', verifyToken, async (req, res, next) => {
+router.patch('/rent', verifyToken, async (req, res, next) => {
     const {postId, title, content, price, category, possible_time} = req.body;
     try {
         await RentPost.update({
