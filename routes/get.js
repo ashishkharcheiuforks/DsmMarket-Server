@@ -447,7 +447,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
             });
         } else {
             const posts = await DealPost.findAll({
-                where : {category},
+                where : {id : postId},
                 order : sequelize.random(),
                 limit : 6,
             });
