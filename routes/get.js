@@ -429,12 +429,12 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/related', verifyToken, async (req, res, next) => {
-    const {category, type} = req.query;
+    const {postId, type} = req.query;
     try {
         const list = [];
         if (Number(type)) {
             const posts = await RentPost.findAll({
-                where : {category},
+                where : {id : postId},
                 order : sequelize.random(),
                 limit : 6,
             });

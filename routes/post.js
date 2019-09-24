@@ -14,7 +14,7 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
     const price = Number(req.body.price).toLocaleString();
     const userId = req.app.get('user').userId;
     try {
-        const post = await DealPost.create({
+        await DealPost.create({
             author : req.app.get('user').nick,
             img : urls,
             title,
@@ -37,7 +37,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
     const price = req.body.price;
     const userId = req.app.get('user').userId;
     try {
-        const post = await RentPost.create({
+        await RentPost.create({
             author : req.app.get('user').nick,
             img,
             title,
