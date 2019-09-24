@@ -111,7 +111,7 @@ router.delete('/post/deal/:postId', verifyToken, async (req, res, next) => {
 router.delete('/post/rent/:postId', verifyToken, async (req, res, next) => {
     const id = req.params.postId;
     try {
-        await RentPost.delete({
+        await RentPost.destory({
             where : {id},
         });
         return res.status(200).json({

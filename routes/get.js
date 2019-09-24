@@ -570,7 +570,7 @@ router.get('/category', verifyToken, (req, res) => {
                     "과자",
                     "음료",
                     "가공식품",
-                    "기"
+                    "기타"
                 ]
             },
             {
