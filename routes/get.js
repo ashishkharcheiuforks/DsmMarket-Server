@@ -485,6 +485,7 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
 });
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
+    const postId = req.body.postId;
     try {
         const posts = await DealPost.findAll({
             where : {userId},
@@ -511,6 +512,7 @@ router.get('/user/list/deal', verifyToken, async (req, res, next) => {
 });
 router.get('/user/list/rent', verifyToken, async (req, res, next) => {
     const userId = req.app.get('user').userId;
+    const postId = req.body.postId;
     try {
         const posts = await RentPost.findAll({
             where : {userId},
