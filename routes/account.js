@@ -61,7 +61,7 @@ router.patch('/password', verifyToken, async (req, res, next) => {
     }
 });
 router.patch('/nick', verifyToken, async (req, res, next) => {
-    const origin_nick = req.app.get('user').nick;
+    const {email} = req.app.get('user');
     const nick = req.body.nick;
     try {
         const exNick = await User.findOne({where : {nick}});
@@ -73,7 +73,7 @@ router.patch('/nick', verifyToken, async (req, res, next) => {
             await User.update({
                 nick,
             }, {
-                where : {nick : origin_nick},
+                where : {email},
             });
             return res.status(200).json({
                 message : 2,

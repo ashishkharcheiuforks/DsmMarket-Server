@@ -1,7 +1,7 @@
 const upload = require('../config/multerConfig');
 const express = require('express');
 const {verifyToken} = require('./middlewares');
-const {Comment, DealPost, RentPost, Hashtag, Interest} = require('../models');
+const {User, Comment, DealPost, RentPost, Interest} = require('../models');
 
 const router = express.Router();
 
@@ -14,8 +14,11 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
     const price = Number(req.body.price).toLocaleString();
     const userId = req.app.get('user').userId;
     try {
+        const {nick} = await User.findOne({
+            where : {userId},
+        });
         await DealPost.create({
-            author : req.app.get('user').nick,
+            author : nick,
             img : urls,
             title,
             content,
@@ -37,8 +40,11 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
     const price = req.body.price;
     const userId = req.app.get('user').userId;
     try {
+        const {nick} = await User.findOne({
+            where : {userId},
+        });
         await RentPost.create({
-            author : req.app.get('user').nick,
+            author : nick,
             img,
             title,
             content,

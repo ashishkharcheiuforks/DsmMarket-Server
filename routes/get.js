@@ -2,7 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const {verifyToken} = require('./middlewares');
 const axios = require('axios');
-const {DealPost, RentPost, Comment, Interest, sequelize, Sequelize : {Op}} = require('../models');
+const {User, DealPost, RentPost, Comment, Interest, sequelize, Sequelize : {Op}} = require('../models');
 
 const router = express.Router();
 const referTable = {};
@@ -12,7 +12,6 @@ router.get('/token', (req, res, next) => {
         const user = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
         const access_token = jwt.sign({
             email : user.email,
-            nick : user.nick,
             userId : user.id,
         },
         process.env.JWT_SECRET_KEY,
@@ -29,29 +28,38 @@ router.get('/token', (req, res, next) => {
         });
     }
 });
-router.get('/user/nick', verifyToken, (req, res) => {
-    return res.status(200).json({
-        nick : req.app.get('user').nick,
-    });
+router.get('/user/nick', verifyToken, async (req, res) => {
+    try {
+        const {email} = req.app.get('user');
+        const {nick} = await User.findOne({
+            where : {email},
+        });
+        return res.status(200).json({
+            nick,
+        });
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
 });
 router.get('/list/deal', verifyToken, async (req, res, next) => {
-    const user = req.app.get('user').nick;
+    const email = req.app.get('user').email;
     const page = Number(req.query.page);
     const pagesize = Number(req.query.pagesize);
     const {search, category} = req.query;
     try {
-        if (referTable.hasOwnProperty(user)) {
-            if (referTable[user].count >= page) {
-                referTable[user].count = page;
-                referTable[user].limit = pagesize;
-                referTable[user].offset = 0;
+        if (referTable.hasOwnProperty(email)) {
+            if (referTable[email].count >= page) {
+                referTable[email].count = page;
+                referTable[email].limit = pagesize;
+                referTable[email].offset = 0;
             } else {
-                referTable[user].count = page;
-                referTable[user].limit = pagesize;
-                referTable[user].offset += pagesize;
+                referTable[email].count = page;
+                referTable[email].limit = pagesize;
+                referTable[email].offset += pagesize;
             }
         } else {
-            referTable[user] = {
+            referTable[email] = {
                 count : page,
                 limit : pagesize,
                 offset : 0
@@ -61,8 +69,8 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
         if (category) {
             const posts = await DealPost.findAll({
                 where : {[Op.like] : category.split('/')[0]},
-                offset : referTable[user].offset,
-                limit : referTable[user].limit,
+                offset : referTable[email].offset,
+                limit : referTable[email].limit,
                 order : [['createdAt', 'DESC']],
             });
             if (search) {
@@ -73,7 +81,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                             title : post.title,
                             img : post.img.split('\n')[0],
                             createdAt : post.createdAt.toString(),
-                            price : post.price,
+                            price : `${post.price}원`,
                         });
                     }
                 });
@@ -84,14 +92,14 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                         title : post.title,
                         img : post.img.split('\n')[0],
                         createdAt : post.createdAt.toString(),
-                        price : post.price,
+                        price : `${post.price}원`,
                     });
                 });
             }
         } else {
             const posts = await DealPost.findAll({
-                offset : referTable[user].offset,
-                limit : referTable[user].limit,
+                offset : referTable[email].offset,
+                limit : referTable[email].limit,
                 order : [['createdAt', 'DESC']],
             });
             if (search) {
@@ -102,7 +110,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                             title : post.title,
                             img : post.img.split('\n')[0],
                             createdAt : post.createdAt.toString(),
-                            price : post.price,
+                            price : `${post.price}원`,
                         });
                     }
                 });
@@ -113,7 +121,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                         title : post.title,
                         img : post.img.split('\n')[0],
                         createdAt : post.createdAt.toString(),
-                        price : post.price,
+                        price : `${post.price}원`,
                     });
                 });
             }
@@ -128,23 +136,23 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/rent', verifyToken, async (req, res, next) => {
-    const user = req.app.get('user').nick;
+    const email = req.app.get('user').email;
     const page = Number(req.query.page);
     const pagesize = Number(req.query.pagesize);
     const {search, category} = req.query;
     try {
-        if (referTable.hasOwnProperty(user)) {
-            if (referTable[user].count >= page) {
-                referTable[user].count = page;
-                referTable[user].limit = pagesize;
-                referTable[user].offset = 0;
+        if (referTable.hasOwnProperty(email)) {
+            if (referTable[email].count >= page) {
+                referTable[email].count = page;
+                referTable[email].limit = pagesize;
+                referTable[email].offset = 0;
             } else {
-                referTable[user].count = page;
-                referTable[user].limit = pagesize;
-                referTable[user].offset += pagesize;
+                referTable[email].count = page;
+                referTable[email].limit = pagesize;
+                referTable[email].offset += pagesize;
             }
         } else {
-            referTable[user] = {
+            referTable[email] = {
                 count : page,
                 limit : pagesize,
                 offset : 0
@@ -154,14 +162,14 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
         if (category) {
             const posts = await RentPost.findAll({
                 where : {[Op.like] : category.split('/')[0]},
-                offset : referTable[user].offset,
-                limit : referTable[user].limit,
+                offset : referTable[email].offset,
+                limit : referTable[email].limit,
                 order : [['createdAt', 'DESC']],
             });
             if (search) {
                 posts.forEach(post => {
                     const flag = Number(post.price.split('/')[0]);
-                    const price = post.price.split('/')[1];
+                    const price = Number(post.price.split('/')[1]).toLocaleString();
                     if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
                         list.push({
                             postId : post.id,
@@ -187,8 +195,8 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
             }
         } else {
             const posts = await RentPost.findAll({
-                offset : referTable[user].offset,
-                limit : referTable[user].limit,
+                offset : referTable[email].offset,
+                limit : referTable[email].limit,
                 order : [['createdAt', 'DESC']],
             });
             if (search) {

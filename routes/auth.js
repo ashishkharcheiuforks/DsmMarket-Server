@@ -35,7 +35,6 @@ router.post('/login', (req, res, next) => {
             }
             const access_token = jwt.sign({
                 email : user.email,
-                nick : user.nick,
                 userId : user.id,
             },
             process.env.JWT_SECRET_KEY,
@@ -44,7 +43,6 @@ router.post('/login', (req, res, next) => {
             });
             const refresh_token = jwt.sign({
                 email : user.email,
-                nick : user.nick,
                 userId : user.id,
             },
             process.env.JWT_SECRET_KEY,
