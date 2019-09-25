@@ -60,7 +60,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
         const list = [];
         if (category) {
             const posts = await DealPost.findAll({
-                where : {category},
+                where : {[Op.like] : category.split('/')[0]},
                 offset : referTable[user].offset,
                 limit : referTable[user].limit,
                 order : [['createdAt', 'DESC']],
@@ -153,7 +153,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
         const list = [];
         if (category) {
             const posts = await RentPost.findAll({
-                where : {category},
+                where : {[Op.like] : category.split('/')[0]},
                 offset : referTable[user].offset,
                 limit : referTable[user].limit,
                 order : [['createdAt', 'DESC']],
