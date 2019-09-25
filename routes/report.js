@@ -2,6 +2,7 @@ const express = require('express');
 const {verifyToken} = require('./middlewares');
 const nodemailer = require('nodemailer');
 const moment = require('moment');
+require('dotenv').config();
 
 const router = express.Router();
 
