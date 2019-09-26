@@ -188,9 +188,12 @@ router.patch('/uninterest', verifyToken, async (req, res, next) => {
     }
 });
 router.post('/comment', verifyToken, async (req, res, next) => {
-    const {email, nick} = req.app.get('user');
+    const {email} = req.app.get('user');
     const {postId, content, type} = req.body;
     try {
+        const {nick} = await User.findOne({
+            where : {email},
+        });
         if (Number(type)) {
             await Comment.create({
                 email,
