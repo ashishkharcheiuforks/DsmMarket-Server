@@ -529,6 +529,7 @@ router.get('/user/list/rent', verifyToken, async (req, res, next) => {
         const list = [];
         posts.forEach(post => {
             const flag = Number(post.price.split('/')[0]);
+            const price = Number(post.price.split('/')[1]).toLocaleString();
             list.push({
                 postId,
                 img : post.img,
