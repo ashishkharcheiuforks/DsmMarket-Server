@@ -12,7 +12,7 @@ router.get('/token', (req, res, next) => {
         const user = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
         const access_token = jwt.sign({
             email : user.email,
-            userId : user.id,
+            userId : user.userId,
         },
         process.env.JWT_SECRET_KEY,
         {
