@@ -108,7 +108,6 @@ router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
         });
         img.split('\n').forEach(url => {
             if (url !== '') {
-                urls.push(url);
                 deleteFile({
                     Bucket : 'dsmmarket',
                     Key : url.split('/')[3],
