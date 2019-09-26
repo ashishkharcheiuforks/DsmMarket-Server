@@ -12,10 +12,10 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
     });
     const {title, content, category} = req.body;
     const price = Number(req.body.price).toLocaleString();
-    const userId = req.app.get('user').userId;
+    const email = req.app.get('user').email;
     try {
-        const {nick} = await User.findOne({
-            where : {userId},
+        const {id, nick} = await User.findOne({
+            where : {email},
         });
         await DealPost.create({
             author : nick,
@@ -24,7 +24,7 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
             content,
             price,
             category,
-            userId,
+            userId : id,
         });
         res.status(200).json({
             message : 7,
@@ -38,10 +38,10 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
     const img = req.file.location;
     const {title, content, category} = req.body;
     const price = req.body.price;
-    const userId = req.app.get('user').userId;
+    const email = req.app.get('user').email;
     try {
-        const {nick} = await User.findOne({
-            where : {userId},
+        const {id, nick} = await User.findOne({
+            where : {email},
         });
         await RentPost.create({
             author : nick,
@@ -50,7 +50,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
             content,
             price,
             category,
-            userId,
+            userId : id,
             possible_time : req.body.possible_time ? req.body.possible_time : null,
         });
         res.status(200).json({
