@@ -1,4 +1,4 @@
-const upload = require('../config/multerConfig');
+const {upload, deleteFile} = require('../config/multerConfig');
 const express = require('express');
 const {verifyToken} = require('./middlewares');
 const {User, Comment, DealPost, RentPost, Interest} = require('../models');
@@ -100,9 +100,18 @@ router.patch('/rent', verifyToken, async (req, res, next) => {
         return next();
     }
 });
-router.delete('/post/deal/:postId', verifyToken, async (req, res, next) => {
+router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
     const id = req.params.postId;
     try {
+        post.img.split('\n').forEach(url => {
+            if (url !== '') {
+                urls.push(url);
+                deleteFile({
+                    Bucket : 'dsmmarket',
+                    Key : url.split('/')[3],
+                });
+            }
+        });
         await DealPost.delete({
             where : {id},
         });
@@ -114,9 +123,16 @@ router.delete('/post/deal/:postId', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
-router.delete('/post/rent/:postId', verifyToken, async (req, res, next) => {
+router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
     const id = req.params.postId;
     try {
+        const {img} = await RentPost.findOne({
+            where : {id},
+        });
+        deleteFile({
+            Bucket : 'dsmmarket',
+            Key : img.split('/')[3],
+        });
         await RentPost.destory({
             where : {id},
         });
