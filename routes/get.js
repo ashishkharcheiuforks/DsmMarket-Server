@@ -505,7 +505,7 @@ router.get('/user/list/deal', verifyToken, async (req, res, next) => {
         posts.forEach(post => {
             list.push({
                 postId,
-                img : post.img.split('/')[0],
+                img : post.img.split('\n')[0],
                 title : post.title,
                 createdAt : post.createdAt,
                 price : post.price,
