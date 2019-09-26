@@ -183,7 +183,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
             } else {
                 posts.forEach(post => {
                     const flag = Number(post.price.split('/')[0]);
-                    const price = post.price.split('/')[1];
+                    const price = Number(post.price.split('/')[1]).toLocaleString();
                     list.push({
                         postId : post.id,
                         title : post.title,
@@ -202,7 +202,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
             if (search) {
                 posts.forEach(post => {
                     const flag = Number(post.price.split('/')[0]);
-                    const price = post.price.split('/')[1];
+                    const price = Number(post.price.split('/')[1]).toLocaleString();
                     if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
                         list.push({
                             postId : post.id,
@@ -216,7 +216,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
             } else {
                 posts.forEach(post => {
                     const flag = Number(post.price.split('/')[0]);
-                    const price = post.price.split('/')[1];
+                    const price = Number(post.price.split('/')[1]).toLocaleString();
                     list.push({
                         postId : post.id,
                         title : post.title,
