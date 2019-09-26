@@ -5,7 +5,7 @@ const S3 = new AWS.S3();
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 
-module.exports = multer({
+exports.upload = multer({
     storage : multerS3({
         s3 : S3,
         bucket : "dsmmarket",
@@ -16,3 +16,11 @@ module.exports = multer({
         acl : 'public-read-write',
     }),
 });
+
+exports.deleteFile = async (params) => {
+    try {
+        await S3.deleteObject(params).promise();
+    } catch (err) {
+        console.error(err);
+    }
+};
