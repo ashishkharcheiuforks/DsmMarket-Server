@@ -76,7 +76,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
             });
             if (search) {
                 posts.forEach(post => {
-                    if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
+                    if (post.title.match(search) || post.content.match(search)) {
                         list.push({
                             postId : post.id,
                             title : post.title,
@@ -105,7 +105,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
             });
             if (search) {
                 posts.forEach(post => {
-                    if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
+                    if (post.title.match(search) || post.content.match(search)) {
                         list.push({
                             postId : post.id,
                             title : post.title,
@@ -172,7 +172,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
                 posts.forEach(post => {
                     const flag = Number(post.price.split('/')[0]);
                     const price = Number(post.price.split('/')[1]).toLocaleString();
-                    if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
+                    if (post.title.match(search) || post.content.match(search)) {
                         list.push({
                             postId : post.id,
                             title : post.title,
@@ -205,7 +205,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
                 posts.forEach(post => {
                     const flag = Number(post.price.split('/')[0]);
                     const price = Number(post.price.split('/')[1]).toLocaleString();
-                    if (post.title.match(decodeURI(search)) || post.content.match(decodeURI(search))) {
+                    if (post.title.match(search) || post.content.match(search)) {
                         list.push({
                             postId : post.id,
                             title : post.title,
