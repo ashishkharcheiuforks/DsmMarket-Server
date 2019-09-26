@@ -103,7 +103,10 @@ router.patch('/rent', verifyToken, async (req, res, next) => {
 router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
     const id = req.params.postId;
     try {
-        post.img.split('\n').forEach(url => {
+        const {img} = await RentPost.findOne({
+            where : {id},
+        });
+        img.split('\n').forEach(url => {
             if (url !== '') {
                 urls.push(url);
                 deleteFile({
