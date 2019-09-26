@@ -46,7 +46,8 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
     const email = req.app.get('user').email;
     const page = Number(req.query.page);
     const pagesize = Number(req.query.pagesize);
-    const {search, category} = req.query;
+    const search = decodeURI(req.query.search);
+    const category = decodeURI(req.query.category);
     try {
         if (referTable.hasOwnProperty(email)) {
             if (referTable[email].count >= page) {
@@ -139,7 +140,8 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
     const email = req.app.get('user').email;
     const page = Number(req.query.page);
     const pagesize = Number(req.query.pagesize);
-    const {search, category} = req.query;
+    const search = decodeURI(req.query.search);
+    const category = decodeURI(req.query.category);
     try {
         if (referTable.hasOwnProperty(email)) {
             if (referTable[email].count >= page) {
