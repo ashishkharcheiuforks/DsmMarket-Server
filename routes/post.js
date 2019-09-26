@@ -103,7 +103,7 @@ router.patch('/rent', verifyToken, async (req, res, next) => {
 router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
     const id = req.params.postId;
     try {
-        const {img} = await RentPost.findOne({
+        const {img} = await dealPost.findOne({
             where : {id},
         });
         img.split('\n').forEach(url => {
@@ -115,7 +115,7 @@ router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
                 });
             }
         });
-        await DealPost.delete({
+        await DealPost.destroy({
             where : {id},
         });
         return res.status(200).json({
