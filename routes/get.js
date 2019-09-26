@@ -503,7 +503,7 @@ router.get('/user/list/deal', verifyToken, async (req, res, next) => {
         const list = [];
         posts.forEach(post => {
             list.push({
-                postId,
+                postId : post.id,
                 img : post.img.split('\n')[0],
                 title : post.title,
                 createdAt : post.createdAt,
@@ -531,7 +531,7 @@ router.get('/user/list/rent', verifyToken, async (req, res, next) => {
             const flag = Number(post.price.split('/')[0]);
             const price = Number(post.price.split('/')[1]).toLocaleString();
             list.push({
-                postId,
+                postId : post.id,
                 img : post.img,
                 title : post.title,
                 createdAt : post.createdAt,
