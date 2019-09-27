@@ -298,7 +298,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     title : post.title,
                     content : post.content,
                     createdAt : post.createdAt,
-                    price : post.price,
+                    price : `${post.price}원`,
                     comments : comments.length,
                     interest : isInterest ? true : false,
                     category : post.category,
@@ -507,7 +507,7 @@ router.get('/user/list/deal', verifyToken, async (req, res, next) => {
                 img : post.img.split('\n')[0],
                 title : post.title,
                 createdAt : post.createdAt,
-                price : post.price,
+                price : `${post.price}원`,
             });
         });
         return res.status(200).json({
