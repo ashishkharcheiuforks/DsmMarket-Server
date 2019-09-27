@@ -424,7 +424,7 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
             posts.forEach(post => {
                 list.push({
                     postId : post.id,
-                    img : post.img,
+                    img : post.img.split('\n')[0],
                     title : post.title,
                     createdAt : post.createdAt,
                     price : post.price,
@@ -542,6 +542,54 @@ router.get('/user/list/rent', verifyToken, async (req, res, next) => {
             list,
             message : 9,
         });
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+});
+router.get('/deal/img', verifyToken, async (req, res, next) => {
+    const id = req.query.postId;
+    try {
+        const {img} = await DealPost.findOne({
+            where : {id},
+        });
+        if (img) {
+            const list = [];
+            img.split('\n').forEach(url => {
+                if (url !== '') {
+                    list.push(url);
+                }
+            });
+            return res.status(200).json({
+                list,
+                message : 9,
+            });
+        } else {
+            return res.status(410).json({
+                errorCode : 11,
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+});
+router.get('/rent/img', verifyToken, async (req, res, next) => {
+    const id = req.query.postId;
+    try {
+        const {img} = await RentPost.findOne({
+            where : {id},
+        });
+        if (img) {
+            return res.status(200).json({
+                img,
+                message : 9,
+            });
+        } else {
+            return res.status(410).json({
+                errorCode : 11,
+            });
+        }
     } catch (err) {
         console.error(err);
         return next(err);
