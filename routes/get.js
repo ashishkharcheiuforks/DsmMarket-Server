@@ -121,7 +121,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                         postId : post.id,
                         title : post.title,
                         img : post.img.split('\n')[0],
-                        createdAt : post.createdAt.toString(),
+                        createdAt : post.createdAt,
                         price : `${post.price}원`,
                     });
                 });
