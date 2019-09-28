@@ -92,14 +92,15 @@ router.get('/login', verifyToken, async (req, res) => {
                     errorCode : 3,
                 });
             }
+        } else {
+            return res.status(200).json({
+                message : 1,
+            });
         }
     } catch (err) {
         console.error(err);
         return next(err);
     }
-    return res.status(200).json({
-        message : 1,
-    });
 });
 router.get('/mail', async (req, res, next) => {
     const email = req.body.email;
@@ -152,15 +153,19 @@ router.post('/mail', async (req, res, next) => {
     try {
         const isSame = await Auth.findOne({where : {email}});
         if (isSame.mailCode === Number(mailCode)) {
-            await Auth.destroy({
+            const authCode = Math.floor(Math.random() * 900000) + 100000;
+            await Auth.update({
+                authCode,
+            }, {
                 where : {email},
             });
             return res.status(200).json({
+                authCode,
                 message : 4,
             });
         } else {
             return res.status(403).json({
-                errorCode : 5
+                errorCode : 5,
             });
         }
     } catch (err) {
