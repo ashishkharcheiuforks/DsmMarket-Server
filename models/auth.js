@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         authCode : {
             type : DataTypes.INTEGER.UNSIGNED,
             allowNull : true,
-        }
+        },
     }, {
         charset : 'utf8',
         collation : 'utf8_general_ci',
