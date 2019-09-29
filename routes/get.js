@@ -427,7 +427,7 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
                     img : post.img.split('\n')[0],
                     title : post.title,
                     createdAt : post.createdAt,
-                    price : post.price,
+                    price : `${post.price}원`,
                 });
             });
             return res.status(200).json({
