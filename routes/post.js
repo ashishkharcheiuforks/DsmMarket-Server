@@ -26,7 +26,7 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
             category,
             userId : id,
         });
-        res.status(200).json({
+        return res.status(200).json({
             message : 7,
         });
     } catch (err) {
@@ -53,7 +53,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
             userId : id,
             possible_time : req.body.possible_time ? req.body.possible_time : null,
         });
-        res.status(200).json({
+        return res.status(200).json({
             message : 7,
         });
     } catch (err) {
@@ -135,7 +135,7 @@ router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
             Bucket : 'dsmmarket',
             Key : img.split('/')[3],
         });
-        await RentPost.destory({
+        await RentPost.destroy({
             where : {id},
         });
         return res.status(200).json({
