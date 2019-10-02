@@ -15,6 +15,7 @@ exports.upload = multer({
         },
         acl : 'public-read-write',
     }),
+    limits : {fileSize : 5 * 1024 * 1024},
 });
 
 exports.deleteFile = async (params) => {
