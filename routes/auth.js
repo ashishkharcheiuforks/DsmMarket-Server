@@ -52,6 +52,7 @@ router.post('/login', (req, res, next) => {
             return res.status(200).json({
                 access_token,
                 refresh_token,
+                nick : user.nick,
                 message : 1,
             });
         });
@@ -93,7 +94,12 @@ router.get('/login', verifyToken, async (req, res) => {
                 });
             }
         } else {
+            const email = req.app.get('user').email;
+            const {nick} = await User.findOne({
+                where : {email},
+            });
             return res.status(200).json({
+                nick,
                 message : 1,
             });
         }
@@ -153,14 +159,19 @@ router.post('/mail', async (req, res, next) => {
     try {
         const isSame = await Auth.findOne({where : {email}});
         if (isSame.mailCode === Number(mailCode)) {
-            const authCode = Math.floor(Math.random() * 900000) + 100000;
-            await Auth.update({
-                authCode,
+            const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+            for (let i = 0; i < str.length; i++) {
+                password += str[Math.floor(Math.random() * str.length)];
+            }
+            const tempPassword = await bcrypt.hash(password, 12);
+            await User.update({
+                password,
             }, {
-                where : {email},
+                where: {email},
             });
+            
             return res.status(200).json({
-                authCode,
+                tempPassword,
                 message : 4,
             });
         } else {
