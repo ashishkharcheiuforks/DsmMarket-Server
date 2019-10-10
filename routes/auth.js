@@ -110,14 +110,23 @@ router.get('/login', verifyToken, async (req, res) => {
 });
 router.get('/mail', async (req, res, next) => {
     const email = req.body.email;
-    const code = Math.floor(Math.random() * (1000000 - 100000)) + 100000;
+    const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+    for (let i = 0; i < str.length; i++) {
+        password += str[Math.floor(Math.random() * str.length)];
+    }
+    const tempPassword = await bcrypt.hash(password, 12);
+    await User.update({
+        password,
+    }, {
+        where: { email },
+    });
     const mailOptions = {
         from : 'dsmplanb@gmail.com',
         to : req.query.email,
-        subject : '[대마장터] 인증코드를 입력하세요',
+        subject : '[대마장터] 임시 비밀번호를 확인하세요.',
         html : `<h1>안녕하세요. 대마장터입니다.<h1>
-        <h1>하단의 인증코드를 입력해주세요.<h1>
-        <h3>인증코드 : ${code}<h3>`,
+        <h1>하단의 임시 비밀번호로 로그인하세요.<h1>
+        <h3>인증코드 : ${tempPassword}}<h3>`,
     };
     transporter.sendMail(mailOptions, async (err, info) => {
         if (err) {
@@ -153,35 +162,5 @@ router.get('/mail', async (req, res, next) => {
     return res.status(200).json({
         message : 3,
     })
-});
-router.post('/mail', async (req, res, next) => {
-    const {email, mailCode} = req.body;
-    try {
-        const isSame = await Auth.findOne({where : {email}});
-        if (isSame.mailCode === Number(mailCode)) {
-            const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
-            for (let i = 0; i < str.length; i++) {
-                password += str[Math.floor(Math.random() * str.length)];
-            }
-            const tempPassword = await bcrypt.hash(password, 12);
-            await User.update({
-                password,
-            }, {
-                where: {email},
-            });
-            
-            return res.status(200).json({
-                tempPassword,
-                message : 4,
-            });
-        } else {
-            return res.status(403).json({
-                errorCode : 5,
-            });
-        }
-    } catch (err) {
-        console.error(err);
-        return next(err);
-    }
 });
 module.exports = router;
