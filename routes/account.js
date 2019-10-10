@@ -49,8 +49,9 @@ router.post('/join', async (req, res, next) => {
         return next(err);
     }
 });
-router.patch('/password', async (req, res, next) => {
-    const {email, authCode} = req.body.authCode;
+router.patch('/password', verifyToken, async (req, res, next) => {
+    const {authCode} = req.body.authCode;
+    const email = req.app.get('user').email;
     try {
         const isSame = await Auth.findOne({
             where : {email},
