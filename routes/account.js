@@ -50,31 +50,20 @@ router.post('/join', async (req, res, next) => {
     }
 });
 router.patch('/password', verifyToken, async (req, res, next) => {
-    const {authCode} = req.body.authCode;
     const email = req.app.get('user').email;
     try {
-        const isSame = await Auth.findOne({
-            where : {email},
-            attributes : ['authCode'],
+        const password = await bcrypt.hash(req.body.password, 12);
+        await User.update({
+            password,
+        }, {
+            where: { email },
         });
-        if (isSame.authCode === Number(authCode)) {
-            const password = await bcrypt.hash(req.body.password, 12);
-            await User.update({
-                password,
-            }, {
-                where : {email},
-            });
-            await Auth.destroy({
-                where : {email},
-            });
-            return res.status(200).json({
-                message : 2,
-            });
-        } else {
-            return res.status(403).json({
-                errorCode : 10,
-            });
-        }
+        await Auth.destroy({
+            where: { email },
+        });
+        return res.status(200).json({
+            message: 2,
+        });
     } catch (err) {
         console.error(err);
         return next(err);
