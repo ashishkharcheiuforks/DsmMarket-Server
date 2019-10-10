@@ -13,7 +13,6 @@ const sequelize = new Sequelize(
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 db.User = require('./user')(sequelize, Sequelize);
-db.Auth = require('./auth')(sequelize, Sequelize);
 db.DealPost = require('./dealPost')(sequelize, Sequelize);
 db.RentPost = require('./rentPost')(sequelize, Sequelize);
 db.Interest = require('./interest')(sequelize, Sequelize);
