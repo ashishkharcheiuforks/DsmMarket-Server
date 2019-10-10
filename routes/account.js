@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/join', async (req, res, next) => {
     const {email, password, nick, grade, gender} = req.body;
     const tempPassword = null;
-    const dealLogs = {
+    const dealLogs = JSON.stringify({
         log1 : 0,
         log2 : 0,
         log3 : 0,
@@ -20,7 +20,7 @@ router.post('/join', async (req, res, next) => {
         log8 : 0,
         log9 : 0,
         log10 : 0,
-    };
+    });
     const rentLogs = dealLogs;
     try {
         const exEmail = await User.findOne({where : {email}});
