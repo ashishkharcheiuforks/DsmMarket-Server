@@ -116,53 +116,28 @@ router.get('/mail', async (req, res, next) => {
     for (let i = 0; i < str.length; i++) {
         password += str[Math.floor(Math.random() * str.length)];
     }
-    const tempPassword = await bcrypt.hash(password, 12);
-    await User.update({
-        password,
-    }, {
-        where: { email },
-    });
     const mailOptions = {
         from : 'dsmplanb@gmail.com',
         to : req.query.email,
         subject : '[대마장터] 임시 비밀번호를 확인하세요.',
         html : `<h1>안녕하세요. 대마장터입니다.<h1>
         <h1>하단의 임시 비밀번호로 로그인하세요.<h1>
-        <h3>인증코드 : ${tempPassword}}<h3>`,
+        <h3>인증코드 : ${password}}<h3>`,
     };
+    const tempPassword = await bcrypt.hash(password, 12);
+    await User.update({
+        tempPassword,
+    }, {
+        where: { email },
+    });
     transporter.sendMail(mailOptions, async (err, info) => {
         if (err) {
             console.error(err);
             return next(err);
-        } else {
-            try {
-                const exEmail = await Auth.findOne({where : {email}});
-                if (exEmail) {
-                    await Auth.update({
-                        mailCode,
-                    }, {
-                        where : {email},
-                    });
-                } else {
-                    await Auth.create({
-                        email,
-                        mailCode,
-                    });
-                }
-                console.log(`Email sent : ${info.response}`);
-                setTimeout(async () => {
-                    await Auth.destroy({
-                        where : {email},
-                    });
-                }, 20000);
-            } catch (err) {
-                console.error(err);
-                return next(err);
-            }
         }
     });
     return res.status(200).json({
         message : 3,
-    })
+    });
 });
 module.exports = router;
