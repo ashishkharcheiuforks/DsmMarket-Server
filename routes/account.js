@@ -71,7 +71,7 @@ router.patch('/password', verifyToken, async (req, res, next) => {
                 message : 2,
             });
         } else {
-            return res.status(401).json({
+            return res.status(403).json({
                 errorCode : 10,
             });
         }
