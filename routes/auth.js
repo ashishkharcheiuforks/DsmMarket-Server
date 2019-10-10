@@ -110,7 +110,7 @@ router.get('/login', verifyToken, async (req, res) => {
     }
 });
 router.get('/mail', async (req, res, next) => {
-    const email = req.body.email;
+    const email = req.query.email;
     const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
     let password = [];
     for (let i = 0; i < str.length; i++) {
