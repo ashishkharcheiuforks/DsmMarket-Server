@@ -5,10 +5,6 @@ module.exports = (sequelize, DataTypes) => {
             allowNull : false,
             unique : true,
         },
-        mailCode : {
-            type : DataTypes.INTEGER.UNSIGNED,
-            allowNull : true,
-        },
         authCode : {
             type : DataTypes.INTEGER.UNSIGNED,
             allowNull : true,
