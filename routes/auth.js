@@ -69,31 +69,59 @@ router.get('/login', verifyToken, async (req, res) => {
                 attributes : ['password'],
             });
             const isSame1 = await bcrypt.compare(password, user.password);
-            const isSame2 = await bcrypt.compare(password, user.tempPassword);
-            if (isSame1 | isSame2) {
-                const exEmail = await Auth.findOne({where : {email}});
-                if (exEmail) {
-                    await Auth.update({
+            if (user.tempPassword) {
+                const isSame2 = await bcrypt.compare(password, user.tempPassword);
+                if (isSame1 | isSame2) {
+                    const exEmail = await Auth.findOne({where : {email}});
+                    if (exEmail) {
+                        await Auth.update({
+                            authCode,
+                        }, {
+                            where : {email},
+                        });
+                    } else {
+                        await Auth.create({
+                            email,
+                            authCode,
+                        });
+                    }
+                    return res.status(200).json({
                         authCode,
-                    }, {
-                        where : {email},
+                        email,
+                        message : 6,
                     });
                 } else {
-                    await Auth.create({
-                        email,
-                        authCode,
+                    return res.status(401).json({
+                        errorCode : 3,
                     });
                 }
-                return res.status(200).json({
-                    authCode,
-                    email,
-                    message : 6,
-                });
             } else {
-                return res.status(401).json({
-                    errorCode : 3,
-                });
+                if (isSame1) {
+                    const exEmail = await Auth.findOne({where : {email}});
+                    if (exEmail) {
+                        await Auth.update({
+                            authCode,
+                        }, {
+                            where : {email},
+                        });
+                    } else {
+                        await Auth.create({
+                            email,
+                            authCode,
+                        });
+                    }
+                    return res.status(200).json({
+                        authCode,
+                        email,
+                        message : 6,
+                    });
+                } else {
+                    return res.status(401).json({
+                        errorCode : 3,
+                    });
+                }
             }
+            
         } else {
             const email = req.app.get('user').email;
             const {nick} = await User.findOne({
