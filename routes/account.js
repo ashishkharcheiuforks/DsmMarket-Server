@@ -8,6 +8,20 @@ const router = express.Router();
 
 router.post('/join', async (req, res, next) => {
     const {email, password, nick, grade, gender} = req.body;
+    const tempPassword = null;
+    const dealLogs = {
+        log1 : 0,
+        log2 : 0,
+        log3 : 0,
+        log4 : 0,
+        log5 : 0,
+        log6 : 0,
+        log7 : 0,
+        log8 : 0,
+        log9 : 0,
+        log10 : 0,
+    };
+    const rentLogs = dealLogs;
     try {
         const exEmail = await User.findOne({where : {email}});
         if (exEmail) {
@@ -20,9 +34,12 @@ router.post('/join', async (req, res, next) => {
         await User.create({
             email,
             password : await bcrypt.hash(password, 12),
+            tempPassword,
             nick,
             grade,
             gender,
+            dealLogs,
+            rentLogs,
         });
         return res.status(200).json({
             message : 0,
