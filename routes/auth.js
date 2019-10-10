@@ -63,7 +63,6 @@ router.get('/login', verifyToken, async (req, res) => {
     try {
         if (password) {
             const email = req.app.get('user').email;
-            const authCode = Math.floor(Math.random() * (1000000 - 100000)) + 100000;
             const user = await User.findOne({
                 where : {email},
                 attributes : ['password'],
@@ -72,22 +71,7 @@ router.get('/login', verifyToken, async (req, res) => {
             if (user.tempPassword) {
                 const isSame2 = await bcrypt.compare(password, user.tempPassword);
                 if (isSame1 | isSame2) {
-                    const exEmail = await Auth.findOne({where : {email}});
-                    if (exEmail) {
-                        await Auth.update({
-                            authCode,
-                        }, {
-                            where : {email},
-                        });
-                    } else {
-                        await Auth.create({
-                            email,
-                            authCode,
-                        });
-                    }
                     return res.status(200).json({
-                        authCode,
-                        email,
                         message : 6,
                     });
                 } else {
@@ -97,22 +81,7 @@ router.get('/login', verifyToken, async (req, res) => {
                 }
             } else {
                 if (isSame1) {
-                    const exEmail = await Auth.findOne({where : {email}});
-                    if (exEmail) {
-                        await Auth.update({
-                            authCode,
-                        }, {
-                            where : {email},
-                        });
-                    } else {
-                        await Auth.create({
-                            email,
-                            authCode,
-                        });
-                    }
                     return res.status(200).json({
-                        authCode,
-                        email,
                         message : 6,
                     });
                 } else {
