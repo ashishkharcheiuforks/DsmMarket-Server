@@ -13,11 +13,19 @@ module.exports = (passport) => {
             });
             if (exUser) {
                 const result1 = await bcrypt.compare(password, exUser.password);
-                const result2 = await bcrypt.compare(password, exUser.tempPassword);
-                if (result1 | result2) {
-                    done(null, exUser);
+                if (exUser.tempPassword) {
+                    const result2 = await bcrypt.compare(password, exUser.tempPassword);
+                    if (result1 | result2) {
+                        done(null, exUser);
+                    } else {
+                        done(null, false);
+                    }
                 } else {
-                    done(null, false);
+                    if (result1) {
+                        done(null, exUser);
+                    } else {
+                        done(null, false);
+                    } 
                 }
             } else {
                 done(null, false);
