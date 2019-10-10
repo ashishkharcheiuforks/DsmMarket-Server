@@ -68,8 +68,9 @@ router.get('/login', verifyToken, async (req, res) => {
                 where : {email},
                 attributes : ['password'],
             });
-            const isSame = await bcrypt.compare(password, user.password);
-            if (isSame) {
+            const isSame1 = await bcrypt.compare(password, user.password);
+            const isSame2 = await bcrypt.compare(password, user.tempPassword);
+            if (isSame1 | isSame2) {
                 const exEmail = await Auth.findOne({where : {email}});
                 if (exEmail) {
                     await Auth.update({
