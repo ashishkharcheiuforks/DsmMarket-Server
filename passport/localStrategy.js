@@ -25,7 +25,7 @@ module.exports = (passport) => {
                         done(null, exUser);
                     } else {
                         done(null, false);
-                    } 
+                    }
                 }
             } else {
                 done(null, false);
