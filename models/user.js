@@ -25,7 +25,15 @@ module.exports = (sequelize, DataTypes) => {
         gender : {
             type : DataTypes.STRING(100),
             allowNull : false,
-        }
+        },
+        dealLogs : {
+            type : DataTypes.TEXT,
+            allowNull : false,
+        },
+        rentLogs : {
+            type : DataTypes.TEXT,
+            allowNull : false,
+        },
     }, {
         charset : 'utf8',
         collation : 'utf8_general_ci',
