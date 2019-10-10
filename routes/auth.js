@@ -3,7 +3,7 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
-const {Auth, User} = require('../models');
+const {User} = require('../models');
 const {verifyToken} = require('./middlewares');
 require('dotenv').config();
 
