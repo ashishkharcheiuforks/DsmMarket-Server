@@ -1,6 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const {User} = require('../models');
+const {User, DealPost, RentPost, Comment} = require('../models');
 const {verifyToken} = require('./middlewares');
 require('dotenv').config();
 
@@ -79,6 +79,21 @@ router.patch('/nick', verifyToken, async (req, res, next) => {
                 errorCode : 1,
             });
         } else {
+            await DealPost.update({
+                author : nick,
+            }, {
+                where : {author : exNick},
+            });
+            await RentPost.update({
+                author : nick,
+            }, {
+                where : {author : exNick},
+            });
+            await Comment.update({
+                nick,
+            }, {
+                where : {email},
+            });
             await User.update({
                 nick,
             }, {
