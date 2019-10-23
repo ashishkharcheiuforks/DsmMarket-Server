@@ -70,4 +70,6 @@ router.get('/', verifyToken, async (req, res, next) => {
         console.log(err);
         return next(err);
     }
-})
+});
+
+module.exports = router;
