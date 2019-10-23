@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
     sequelize.define('room', {
         title : {
-            type : DataTypes.String(100),
+            type : DataTypes.STRING(100),
             allowNull : false,
         },
         picture : {
