@@ -481,13 +481,36 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/recommend', verifyToken, async (req, res, next) => {
-    const category = req.query.category;
+    const {postId, type} = req.query;
+    const userId = req.app.get('user').userId;
     try {
-        const res = await axios.get('/get_log', {
-
+        const posts = await axios.get('https://b2cf3f8e-7ec8-4310-9951-29b5c96679c6.mock.pstmn.io/list/recommend', {
+            params : {
+                userId,
+                type,
+            }
         });
         const list = [];
-        
+
+        for (const post of posts) {
+            const {id, title, img} = type ? await RentPost.findOne({
+                where : {id : post.id}
+            }) : await DealPost.findOne({
+                where : {id : post.id}
+            });
+
+            list.push({
+                postId : id,
+                type,
+                title,
+                img,
+            });
+        }
+
+        return res.status(200).json({
+            list,
+            message : 9,
+        });
     } catch (err) {
         console.error(err);
         return next(err);
