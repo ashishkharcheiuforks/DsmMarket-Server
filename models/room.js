@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    sequelize.define('room', {
+    return sequelize.define('room', {
         title : {
             type : DataTypes.STRING(100),
             allowNull : false,
@@ -9,8 +9,9 @@ module.exports = (sequelize, DataTypes) => {
             allowNull : false,
         },
         roomId : {
-            type : DataTypes.TEXT,
+            type : DataTypes.INTEGER,
             allowNull : false,
+            primaryKey : true,
             autoIncrement : true,
         },
         user1 : {
