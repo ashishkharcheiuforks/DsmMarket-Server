@@ -16,21 +16,17 @@ router.post('/', verifyToken, async (req, res, next) => {
         if (post) {
             const { title, img, author } = post;
     
-            const user1 = await User.findOne({
-                where : {nick : req.app.get('user').email},
-                attributes : ['nick'],
-            });
+            const user1 = req.app.get('user').email;
     
             const user2 = await User.findOne({
                 where : {nick : author},
-                attributes : ['nick'],
             });
     
             const {roomId} = await Room.create({
                 title,
                 picture : img.split('\n')[0],
                 user1,
-                user2,
+                user2 : user2.email,
             });
     
             return res.status(200).json({
