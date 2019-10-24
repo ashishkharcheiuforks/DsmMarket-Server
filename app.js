@@ -2,12 +2,14 @@ const morgan = require('morgan');
 const {sequelize} = require('./models');
 const express = require('express');
 const passport = require('passport');
+const listen = require('socket.io');
 
 const accountRouter = require('./routes/account');
 const authRouter = require('./routes/auth');
 const getRouter = require('./routes/get');
 const postRouter = require('./routes/post');
 const reportRouter = require('./routes/report');
+const roomRouter = require('./routes/room');
 const passportConfig = require('./passport');
 const cors = require('cors');
 
@@ -27,6 +29,7 @@ app.use('/auth', authRouter);
 app.use('/', getRouter);
 app.use('/post', postRouter);
 app.use('/report', reportRouter);
+app.use('/room', roomRouter);
 
 app.use((req, res, next) => {
     const err = new Error('Not Found');
