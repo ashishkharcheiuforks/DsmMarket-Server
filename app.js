@@ -4,6 +4,7 @@ const express = require('express');
 const passport = require('passport');
 const listen = require('socket.io');
 
+const testRouter = require('./routes/test');
 const accountRouter = require('./routes/account');
 const authRouter = require('./routes/auth');
 const getRouter = require('./routes/get');
@@ -24,6 +25,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
 
+app.use('/test', testRouter);
 app.use('/account', accountRouter);
 app.use('/auth', authRouter);
 app.use('/', getRouter);
