@@ -491,9 +491,8 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
             }
         });
         const list = [];
-        console.log(posts);
 
-        for (const post of posts.list) {
+        for (const post of posts.data.list) {
             const {id, title, img} = type ? await RentPost.findOne({
                 where : {id : post.id}
             }) : await DealPost.findOne({
