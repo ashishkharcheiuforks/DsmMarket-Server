@@ -2,7 +2,8 @@ const morgan = require('morgan');
 const {sequelize} = require('./models');
 const express = require('express');
 const passport = require('passport');
-const listen = require('socket.io');
+const http = require('http');
+const {ChatLog} = require('./models');
 
 const testRouter = require('./routes/test');
 const accountRouter = require('./routes/account');
@@ -43,6 +44,25 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).send(err);
 });
 
-app.listen(app.get('port'), () => {
+const server = http.createServer(app).listen(app.get('port'), () => {
     console.log('server is running on', app.get('port'));
+});
+
+const io = require('socket.io').listen(server);
+
+io.sockets.on('connection', (socket) => {
+    socket.on('joinRoom', (data) => {
+        socket.join(data.room);
+        socket.email = data.email;
+        socket.room = data.room;
+    });
+
+    socket.on('sendMessage', async (data) => {
+        await ChatLog.create({
+            message : data.msg,
+            email : socket.email,
+            roomId : socket.room,
+        });
+        socket.broadcast.to(socket.room).emit('broadcastMessage', data);
+    });
 });
