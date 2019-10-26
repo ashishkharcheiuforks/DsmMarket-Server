@@ -1,6 +1,6 @@
 const express = require('express');
 const {verifyToken} = require('./middlewares');
-const {User, DealPost, RentPost, Room, Sequelize : {Op}} = require('../models');
+const {User, DealPost, RentPost, Room, ChatLog, Sequelize : {Op}} = require('../models');
 
 const router = express.Router();
 
@@ -64,6 +64,57 @@ router.get('/', verifyToken, async (req, res, next) => {
         });
     } catch (err) {
         console.log(err);
+        return next(err);
+    }
+});
+
+router.get('/join/:roomId', verifyToken, async (req, res, next) => {
+    const {roomId} = req.params;
+    const email = req.get('user').email;
+    try {
+        const {postId} = await Room.findOne({
+            where : {roomId},
+        });
+
+        if (postId) {
+            return res.status(200).json({
+                email,
+            });
+        } else {
+            return res.status(410).json({
+                message : '삭제된 게시물',
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+});
+
+router.get('/chatLog', verifyToken, async (req, res, next) => {
+    const {roomId, count} = req.query;
+    const email = req.app.get('user').email;
+    try {
+        const logs = await ChatLog.findAll({
+            where : {roomId},
+            offset : 20 * count,
+            limit : 20,
+            order : [['createdAt', 'DESC']],
+        });
+        const list = [];
+
+        logs.forEach(log => {
+            list.push({
+                me : log.email === email ? true : false,
+                message : log.message,
+            });
+        });
+
+        return res.status(200).json({
+            list,
+        });
+    } catch (err) {
+        console.error(err);
         return next(err);
     }
 });
