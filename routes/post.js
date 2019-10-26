@@ -1,7 +1,7 @@
 const {upload, deleteFile} = require('../config/multerConfig');
 const express = require('express');
 const {verifyToken} = require('./middlewares');
-const {User, Comment, DealPost, RentPost, Interest} = require('../models');
+const {User, Comment, DealPost, RentPost, Interest, ChatLog, Room, Sequelize : {Op}} = require('../models');
 
 const router = express.Router();
 
@@ -114,6 +114,15 @@ router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
                 });
             }
         });
+        const {roomId} = await Room.findOne({
+            where : {[Op.and] : [{postId : id}, {type : 0}]},
+        });
+        await Room.destroy({
+            where : {[Op.and] : [{postId : id}, {type : 0}]},
+        });
+        await ChatLog.destroy({
+            where : {roomId},
+        });
         await DealPost.destroy({
             where : {id},
         });
@@ -134,6 +143,15 @@ router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
         deleteFile({
             Bucket : 'dsmmarket',
             Key : img.split('/')[3],
+        });
+        const {roomId} = await Room.findOne({
+            where : {[Op.and] : [{postId : id}, {type : 1}]},
+        });
+        await Room.destroy({
+            where : {[Op.and] : [{postId : id}, {type : 1}]},
+        });
+        await ChatLog.destroy({
+            where : {roomId},
         });
         await RentPost.destroy({
             where : {id},
