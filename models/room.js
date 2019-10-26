@@ -1,5 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('room', {
+        postId : {
+            type : DataTypes.INTEGER,
+            allowNull : false,
+        },
         title : {
             type : DataTypes.STRING(100),
             allowNull : false,
