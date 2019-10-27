@@ -13,6 +13,7 @@ router.post('/', verifyToken, async (req, res, next) => {
             where : { id :postId },
         });
 
+        console.log(post);
         if (post) {
             const { title, img, author } = post;
     
