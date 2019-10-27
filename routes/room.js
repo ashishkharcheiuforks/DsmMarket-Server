@@ -24,6 +24,7 @@ router.post('/', verifyToken, async (req, res, next) => {
     
             const {roomId} = await Room.create({
                 postId,
+                type,
                 title,
                 picture : img.split('\n')[0],
                 user1,
