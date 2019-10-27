@@ -51,11 +51,12 @@ const server = http.createServer(app).listen(app.get('port'), () => {
 const io = require('socket.io').listen(server);
 
 io.sockets.on('connection', (socket) => {
+    console.log(`[connection] ${socket.id} connection`);
     socket.on('joinRoom', (data) => {
         socket.join(data.room);
         socket.email = data.email;
         socket.room = data.room;
-        console.log(`[joinRoom] ${socket.email} join ${socket.room}`);
+        console.log(`[joinRoom] ${socket.email}(${socket.id}) join ${socket.room}`);
     });
 
     socket.on('sendMessage', async (data) => {
@@ -67,7 +68,7 @@ io.sockets.on('connection', (socket) => {
                 roomId : socket.room,
             });
             socket.broadcast.to(socket.room).emit('broadcastMessage', data);
-            console.log(`[sendMessage] ${socket.email} sent ${socket.room}`);
+            console.log(`[sendMessage] ${socket.email} sent ${data.msg}`);
         } catch (err) {
             console.error(err);
         }
