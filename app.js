@@ -55,14 +55,20 @@ io.sockets.on('connection', (socket) => {
         socket.join(data.room);
         socket.email = data.email;
         socket.room = data.room;
+        console.log(`[joinRoom] ${socket.email} join ${socket.room}`);
     });
 
     socket.on('sendMessage', async (data) => {
-        await ChatLog.create({
-            message : data.msg,
-            email : socket.email,
-            roomId : socket.room,
-        });
-        socket.broadcast.to(socket.room).emit('broadcastMessage', data);
+        try {
+            await ChatLog.create({
+                message : data.msg,
+                email : socket.email,
+                roomId : socket.room,
+            });
+            socket.broadcast.to(socket.room).emit('broadcastMessage', data);
+            console.log(`[sendMessage] ${socket.email} sent ${socket.room}`);
+        } catch (err) {
+            console.error(err);
+        }
     });
 });
