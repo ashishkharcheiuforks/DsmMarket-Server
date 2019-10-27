@@ -12,8 +12,7 @@ router.post('/', verifyToken, async (req, res, next) => {
         }) : await DealPost.findOne({
             where : { id :postId },
         });
-
-        console.log(post);
+        
         if (post) {
             const { title, img, author } = post;
     
@@ -36,7 +35,7 @@ router.post('/', verifyToken, async (req, res, next) => {
                 roomId,
             });
         } else {
-            res.status(401).json({
+            return res.status(401).json({
                 errorCode : 11,
             });
         }
@@ -73,7 +72,7 @@ router.get('/', verifyToken, async (req, res, next) => {
 
 router.get('/join/:roomId', verifyToken, async (req, res, next) => {
     const {roomId} = req.params;
-    const email = req.get('user').email;
+    const email = req.app.get('user').email;
     try {
         const {postId} = await Room.findOne({
             where : {roomId},
