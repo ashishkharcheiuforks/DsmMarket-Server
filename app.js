@@ -59,6 +59,7 @@ io.sockets.on('connection', (socket) => {
     });
 
     socket.on('sendMessage', async (data) => {
+        console.log(socket.email, socket.room);
         try {
             await ChatLog.create({
                 message : data.msg,
