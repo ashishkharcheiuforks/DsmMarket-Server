@@ -69,7 +69,7 @@ io.sockets.on('connection', (socket) => {
                 roomId : socket.room,
             });
             socket.broadcast.to(socket.room).emit('broadcastMessage', data);
-            console.log(`[sendMessage] ${socket.email} sent ${data.msg}`);
+            console.log(`[sendMessage] ${socket.email}(${socket.id}) sent ${data.msg}`);
         } catch (err) {
             console.error(err);
         }
