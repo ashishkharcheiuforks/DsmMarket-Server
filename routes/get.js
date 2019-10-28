@@ -246,6 +246,32 @@ router.get('/post', verifyToken, async (req, res, next) => {
             const post = await RentPost.findOne({
                 where : {id : postId},
             });
+            const {rentLogs} = JSON.parse(await User.findOne({
+                where : {id : userId},
+            }));
+
+            let temp1;
+            let temp2;
+            temp1 = rentLogs.log1;
+            rentLogs.log1 = postId,
+            temp2 = rentLogs.rog2;
+            rentLogs.log2 = temp1;
+            temp1 = rentLogs.log3;
+            rentLogs.log3 = temp2;
+            temp2 = rentLogs.log4;
+            rentLogs.log4 = temp1;
+            temp1 = rentLogs.log5;
+            rentLogs.log5 = temp2;
+            temp2 = rentLogs.log6;
+            rentLogs.log6 = temp1;
+            temp1 = rentLogs.log7;
+            rentLogs.log7 = temp2;
+            temp2 = rentLogs.log8;
+            rentLogs.log8 = temp1;
+            temp1 = rentLogs.log9;
+            rentLogs.log9 = temp2;
+            rentLogs.log10 = temp1;
+
             if (post) {
                 const flag = Number(post.price.split('/')[0]);
                 const price = post.price.split('/')[1];
@@ -278,6 +304,32 @@ router.get('/post', verifyToken, async (req, res, next) => {
             const post = await DealPost.findOne({
                 where : {id : postId},
             });
+            const {dealLogs} = JSON.parse(await User.findOne({
+                where : {id : userId},
+            }));
+            
+            let temp1;
+            let temp2;
+            temp1 = dealLogs.log1;
+            dealLogs.log1 = postId,
+            temp2 = dealLogs.rog2;
+            dealLogs.log2 = temp1;
+            temp1 = dealLogs.log3;
+            dealLogs.log3 = temp2;
+            temp2 = dealLogs.log4;
+            dealLogs.log4 = temp1;
+            temp1 = dealLogs.log5;
+            dealLogs.log5 = temp2;
+            temp2 = dealLogs.log6;
+            dealLogs.log6 = temp1;
+            temp1 = dealLogs.log7;
+            dealLogs.log7 = temp2;
+            temp2 = dealLogs.log8;
+            dealLogs.log8 = temp1;
+            temp1 = dealLogs.log9;
+            dealLogs.log9 = temp2;
+            dealLogs.log10 = temp1;
+
             if (post) {
                 const comments = await Comment.findAll({
                     where : {dealPostId : postId},
