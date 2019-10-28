@@ -52,6 +52,7 @@ const io = require('socket.io').listen(server);
 
 io.sockets.on('connection', (socket) => {
     console.log(`[connection] ${socket.id} connection`);
+
     socket.on('joinRoom', (data) => {
         socket.join(data.room);
         socket.email = data.email;
@@ -72,5 +73,9 @@ io.sockets.on('connection', (socket) => {
         } catch (err) {
             console.error(err);
         }
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`[disconnect] ${socket.id} disconnect`);
     });
 });
