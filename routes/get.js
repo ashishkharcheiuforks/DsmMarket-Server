@@ -485,8 +485,11 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
     try {
         const list = [];
         if (Number(type)) {
-            const posts = await RentPost.findAll({
+            const {category} = await RentPost.findOne({
                 where : {id : postId},
+            });
+            const posts = await RentPost.findAll({
+                where : {category},
                 order : sequelize.random(),
                 limit : 6,
             });
@@ -498,8 +501,11 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
                 });
             });
         } else {
-            const posts = await DealPost.findAll({
+            const {category} = await RentPost.findOne({
                 where : {id : postId},
+            });
+            const posts = await DealPost.findAll({
+                where : {category},
                 order : sequelize.random(),
                 limit : 6,
             });
