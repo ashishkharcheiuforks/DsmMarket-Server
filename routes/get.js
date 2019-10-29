@@ -250,28 +250,16 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 where : {id : userId},
             });
             const rentLogs = JSON.parse(user.rentLogs);
+            const list = [];
 
-            let temp1;
-            let temp2;
-            temp1 = rentLogs.log1;
-            rentLogs.log1 = postId,
-            temp2 = rentLogs.rog2;
-            rentLogs.log2 = temp1;
-            temp1 = rentLogs.log3;
-            rentLogs.log3 = temp2;
-            temp2 = rentLogs.log4;
-            rentLogs.log4 = temp1;
-            temp1 = rentLogs.log5;
-            rentLogs.log5 = temp2;
-            temp2 = rentLogs.log6;
-            rentLogs.log6 = temp1;
-            temp1 = rentLogs.log7;
-            rentLogs.log7 = temp2;
-            temp2 = rentLogs.log8;
-            rentLogs.log8 = temp1;
-            temp1 = rentLogs.log9;
-            rentLogs.log9 = temp2;
-            rentLogs.log10 = temp1;
+            for (rentLog in rentLogs) {
+                list.push(rentLogs[rentLog]);
+            }
+
+            rentLogs.log1 = postId;
+            for(let i = 0; i < 9; i++) {
+                rentLogs[`log${i + 1}`] = list[i];
+            }
 
             if (post) {
                 const flag = Number(post.price.split('/')[0]);
@@ -281,6 +269,9 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 });
                 const isInterest = await Interest.findOne({
                     where : {userId, postId},
+                });
+                await User.update({
+                    rentLogs : JSON.stringify(rentLogs),
                 });
                 return res.status(200).json({
                     img : post.img,
@@ -309,29 +300,16 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 where : {id : userId},
             });
             const dealLogs = JSON.parse(user.dealLogs);
+            const list = [];
 
-            
-            let temp1;
-            let temp2;
-            temp1 = dealLogs.log1;
-            dealLogs.log1 = postId,
-            temp2 = dealLogs.rog2;
-            dealLogs.log2 = temp1;
-            temp1 = dealLogs.log3;
-            dealLogs.log3 = temp2;
-            temp2 = dealLogs.log4;
-            dealLogs.log4 = temp1;
-            temp1 = dealLogs.log5;
-            dealLogs.log5 = temp2;
-            temp2 = dealLogs.log6;
-            dealLogs.log6 = temp1;
-            temp1 = dealLogs.log7;
-            dealLogs.log7 = temp2;
-            temp2 = dealLogs.log8;
-            dealLogs.log8 = temp1;
-            temp1 = dealLogs.log9;
-            dealLogs.log9 = temp2;
-            dealLogs.log10 = temp1;
+            for (dealLog in dealLogs) {
+                list.push(dealLogs[dealLog]);
+            }
+
+            dealLogs.log1 = postId;
+            for(let i = 0; i < 9; i++) {
+                dealLogs[`log${i + 1}`] = list[i];
+            }
 
             if (post) {
                 const comments = await Comment.findAll({
@@ -345,6 +323,9 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     if (url !== '') {
                         urls.push(url);
                     }
+                });
+                await User.update({
+                    dealLogs : JSON.stringify(dealLogs),
                 });
                 return res.status(200).json({
                     img : urls,
