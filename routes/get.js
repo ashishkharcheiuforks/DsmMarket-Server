@@ -246,9 +246,10 @@ router.get('/post', verifyToken, async (req, res, next) => {
             const post = await RentPost.findOne({
                 where : {id : postId},
             });
-            const {rentLogs} = JSON.parse(await User.findOne({
+            const user = await User.findOne({
                 where : {id : userId},
-            }));
+            });
+            const rentLogs = JSON.parse(user.rentLogs);
 
             let temp1;
             let temp2;
@@ -304,9 +305,11 @@ router.get('/post', verifyToken, async (req, res, next) => {
             const post = await DealPost.findOne({
                 where : {id : postId},
             });
-            const {dealLogs} = JSON.parse(await User.findOne({
+            const user = await User.findOne({
                 where : {id : userId},
-            }));
+            });
+            const dealLogs = JSON.parse(user.dealLogs);
+
             
             let temp1;
             let temp2;
