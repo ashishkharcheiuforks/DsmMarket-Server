@@ -521,7 +521,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/recommend', verifyToken, async (req, res, next) => {
-    const {type} = req.query;
+    const type = Number(req.query.type);
     const userId = req.app.get('user').userId;
     try {
         const posts = await axios.get('http://18.223.169.217/recommend', {
