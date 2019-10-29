@@ -272,6 +272,8 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 });
                 await User.update({
                     rentLogs : JSON.stringify(rentLogs),
+                }, {
+                    where : {id : userId},
                 });
                 return res.status(200).json({
                     img : post.img,
@@ -326,6 +328,8 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 });
                 await User.update({
                     dealLogs : JSON.stringify(dealLogs),
+                }, {
+                    where : {id : userId},
                 });
                 return res.status(200).json({
                     img : urls,
