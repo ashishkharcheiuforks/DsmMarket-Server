@@ -258,7 +258,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
 
             rentLogs.log1 = postId;
             for(let i = 0; i < 9; i++) {
-                rentLogs[`log${i + 1}`] = list[i];
+                rentLogs[`log${i + 2}`] = list[i];
             }
 
             if (post) {
@@ -310,7 +310,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
 
             dealLogs.log1 = postId;
             for(let i = 0; i < 9; i++) {
-                dealLogs[`log${i + 1}`] = list[i];
+                dealLogs[`log${i + 2}`] = list[i];
             }
 
             if (post) {
