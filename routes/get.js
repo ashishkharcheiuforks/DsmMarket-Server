@@ -524,7 +524,7 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
     const {type} = req.query;
     const userId = req.app.get('user').userId;
     try {
-        const posts = await axios.get('https://b2cf3f8e-7ec8-4310-9951-29b5c96679c6.mock.pstmn.io/list/recommend', {
+        const posts = await axios.get('http://18.223.169.217/recommend', {
             params : {
                 userId,
                 type,
@@ -532,11 +532,11 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
         });
         const list = [];
         for (const postId of posts.data.list) {
-            if (postId !== 0) {
+            if (Number(postId) !== 0) {
                 const {id, title, img} = type ? await RentPost.findOne({
-                    where : {id : postId},
+                    where : {id : Number(postId)},
                 }) : await DealPost.findOne({
-                    where : {id : postId},
+                    where : {id : Number(postId)},
                 });
     
                 list.push({
