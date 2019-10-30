@@ -44,6 +44,10 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).send(err);
 });
 
+app.get('/', (req, res) => {
+    res.sendFile(`${__dirname}/c.html`);
+});
+
 const server = http.createServer(app).listen(app.get('port'), () => {
     console.log('server is running on', app.get('port'));
 });
