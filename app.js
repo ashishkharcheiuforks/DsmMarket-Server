@@ -33,6 +33,9 @@ app.use('/', getRouter);
 app.use('/post', postRouter);
 app.use('/report', reportRouter);
 app.use('/room', roomRouter);
+app.get('/', (req, res) => {
+    res.sendFile(`${__dirname}/c.html`);
+});
 
 app.use((req, res, next) => {
     const err = new Error('Not Found');
@@ -42,10 +45,6 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
     res.status(err.status || 500).send(err);
-});
-
-app.get('/', (req, res) => {
-    res.sendFile(`${__dirname}/c.html`);
 });
 
 const server = http.createServer(app).listen(app.get('port'), () => {
