@@ -501,7 +501,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
                 });
             });
         } else {
-            const {category} = await RentPost.findOne({
+            const {category} = await DealPost.findOne({
                 where : {id : postId},
             });
             const posts = await DealPost.findAll({
