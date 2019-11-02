@@ -527,30 +527,29 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/recommend', verifyToken, async (req, res, next) => {
-    const type = Number(req.query.type);
     const userId = req.app.get('user').userId;
     try {
         const posts = await axios.get('http://18.223.169.217/recommend', {
             params : {
                 userId,
-                type,
+                type : 0,
             }
         });
         const list = [];
         for (const postId of posts.data.list) {
             if (Number(postId) !== 0) {
-                const {id, title, img} = type ? await RentPost.findOne({
-                    where : {id : Number(postId)},
-                }) : await DealPost.findOne({
+                const post = await DealPost.findOne({
                     where : {id : Number(postId)},
                 });
-    
-                list.push({
-                    postId : id,
-                    type,
-                    title,
-                    img,
-                });
+                
+                if (post) {
+                    const {id, title, img} = post;
+                    list.push({
+                        postId : id,
+                        title,
+                        img,
+                    });
+                }
             }
         }
 
