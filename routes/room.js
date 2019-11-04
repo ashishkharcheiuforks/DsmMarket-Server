@@ -14,26 +14,35 @@ router.post('/', verifyToken, async (req, res, next) => {
         });
         
         if (post) {
-            const { title, img, author } = post;
-    
-            const user1 = req.app.get('user').email;
-    
-            const user2 = await User.findOne({
-                where : {nick : author},
+            const room = await Room.findOne({
+                where : {[Op.and] : [{postId}, {type}]},
             });
-    
-            const {roomId} = await Room.create({
-                postId,
-                type,
-                title,
-                picture : img.split('\n')[0],
-                user1,
-                user2 : user2.email,
-            });
-    
-            return res.status(200).json({
-                roomId,
-            });
+            if (room) {
+                return res.status(200).json({
+                    roomId : room.roomId,
+                });
+            } else {
+                const { title, img, author } = post;
+
+                const user1 = req.app.get('user').email;
+
+                const user2 = await User.findOne({
+                    where: { nick: author },
+                });
+
+                const { roomId } = await Room.create({
+                    postId,
+                    type,
+                    title,
+                    picture: img.split('\n')[0],
+                    user1,
+                    user2: user2.email,
+                });
+
+                return res.status(200).json({
+                    roomId,
+                });
+            }
         } else {
             return res.status(401).json({
                 errorCode : 11,
