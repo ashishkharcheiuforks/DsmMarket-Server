@@ -489,7 +489,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
                 where : {id : postId},
             });
             const posts = await RentPost.findAll({
-                where : {category},
+                where : {[Op.and] : {category, [Op.ne] : {postId}}},
                 order : sequelize.random(),
                 limit : 6,
             });
@@ -505,7 +505,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
                 where : {id : postId},
             });
             const posts = await DealPost.findAll({
-                where : {category},
+                where : {[Op.and] : {category, [Op.ne] : {postId}}},
                 order : sequelize.random(),
                 limit : 6,
             });
