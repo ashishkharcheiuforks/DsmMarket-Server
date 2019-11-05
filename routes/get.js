@@ -287,6 +287,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     comments : comments.length,
                     interest : isInterest ? true : false,
                     category : post.category,
+                    isMe : post.userId === userId ? true : false,
                     message : 9,
                 });
             } else {
