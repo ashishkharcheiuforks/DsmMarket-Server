@@ -118,6 +118,7 @@ router.get('/chatLog', verifyToken, async (req, res, next) => {
             list.push({
                 me : log.email === email ? true : false,
                 message : log.message,
+                createdAt : log.createdAt,
             });
         });
 
