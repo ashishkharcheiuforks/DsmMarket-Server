@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post('/', verifyToken, async (req, res, next) => {
     const {postId, type} = req.body;
+    const user1 = req.app.get('user').email;
     try {
         const post = Number(type) ? await RentPost.findOne({
             where: { id: postId },
@@ -15,7 +16,7 @@ router.post('/', verifyToken, async (req, res, next) => {
         
         if (post) {
             const room = await Room.findOne({
-                where : {[Op.and] : [{postId}, {type}]},
+                where : {[Op.and] : [{postId}, {type}, {user1}]},
             });
             if (room) {
                 return res.status(200).json({
@@ -23,8 +24,6 @@ router.post('/', verifyToken, async (req, res, next) => {
                 });
             } else {
                 const { title, img, author } = post;
-
-                const user1 = req.app.get('user').email;
 
                 const user2 = await User.findOne({
                     where: { nick: author },
