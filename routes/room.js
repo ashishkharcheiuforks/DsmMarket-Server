@@ -56,7 +56,7 @@ router.get('/', verifyToken, async (req, res, next) => {
     try {
         const email = req.app.get('user').email;
         const rooms = await Room.findAll({
-            where : {[Op.or] : [{user1 : email}, {user2 : email}]},
+            where : {[Op.or] : {[Op.and] : {roomId, user1 : email}, [Op.and] : {roomId, user2 : email}}},
         });
         const list = [];
 
@@ -111,7 +111,7 @@ router.get('/chatLog', verifyToken, async (req, res, next) => {
     const email = req.app.get('user').email;
     try {
         const logs = await ChatLog.findAll({
-            where : {[Op.or] : {[Op.and] : {roomId, user1 : email}, [Op.and] : {roomId, user2 : email}}},
+            where : {[Op.or] : {user1 : email, user2 : email}},
             offset : 20 * count,
             limit : 20,
             order : [['createdAt', 'DESC']],
