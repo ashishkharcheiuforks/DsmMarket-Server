@@ -111,7 +111,7 @@ router.get('/chatLog', verifyToken, async (req, res, next) => {
     const email = req.app.get('user').email;
     try {
         const logs = await ChatLog.findAll({
-            where : {[Op.or] : {user1 : email, user2 : email}},
+            where : {roomId},
             offset : 20 * count,
             limit : 20,
             order : [['createdAt', 'DESC']],
