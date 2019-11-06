@@ -8,10 +8,6 @@ module.exports = (sequelize, DataTypes) => {
             type : DataTypes.INTEGER,
             allowNull : false,
         },
-        title : {
-            type : DataTypes.STRING(100),
-            allowNull : false,
-        },
         picture : {
             type : DataTypes.TEXT,
             allowNull : false,
