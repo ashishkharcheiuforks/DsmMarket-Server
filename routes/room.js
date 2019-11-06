@@ -23,7 +23,7 @@ router.post('/', verifyToken, async (req, res, next) => {
                     roomId : room.roomId,
                 });
             } else {
-                const { title, img, author } = post;
+                const { img, author } = post;
 
                 const user2 = await User.findOne({
                     where: { nick: author },
@@ -32,7 +32,6 @@ router.post('/', verifyToken, async (req, res, next) => {
                 const { roomId } = await Room.create({
                     postId,
                     type,
-                    title,
                     picture: img.split('\n')[0],
                     user1,
                     user2: user2.email,
@@ -61,13 +60,19 @@ router.get('/', verifyToken, async (req, res, next) => {
         });
         const list = [];
 
-        rooms.forEach(room => {
+        for (const room of rooms) {
+            const opponent = room.user1 === email ? await User.findOne({
+                where : {email : room.user2},
+            }) : await User.findOne({
+                where : {email : room.user1},
+            });
+
             list.push({
-                title : room.title,
+                roomName : opponent.nick,
                 picture : room.picture,
                 roomId : room.roomId,
             });
-        });
+        }
 
         return res.status(200).json({
             list,
@@ -106,7 +111,7 @@ router.get('/chatLog', verifyToken, async (req, res, next) => {
     const email = req.app.get('user').email;
     try {
         const logs = await ChatLog.findAll({
-            where : {roomId},
+            where : {[Op.or] : {[Op.and] : {roomId, user1 : email}, [Op.and] : {roomId, user2 : email}}},
             offset : 20 * count,
             limit : 20,
             order : [['createdAt', 'DESC']],
