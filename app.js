@@ -63,12 +63,11 @@ io.sockets.on('connection', (socket) => {
     socket.on('sendMessage', async (data) => {
         console.log(socket.email, socket.room);
         try {
-            const {createdAt} = await ChatLog.create({
+            await ChatLog.create({
                 message : data.msg,
                 email : socket.email,
                 roomId : socket.room,
             });
-            data.createdAt = createdAt;
             socket.broadcast.to(socket.room).emit('broadcastMessage', data);
             console.log(`[sendMessage] ${socket.email}(${socket.id}) sent ${data.msg}`);
         } catch (err) {
