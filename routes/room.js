@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/', verifyToken, async (req, res, next) => {
     const {postId, type} = req.body;
-    const user1 = req.app.get('user').email;
+    const user1 = req.user.email;
     try {
         const post = Number(type) ? await RentPost.findOne({
             where: { id: postId },
@@ -54,7 +54,7 @@ router.post('/', verifyToken, async (req, res, next) => {
 
 router.get('/', verifyToken, async (req, res, next) => {
     try {
-        const email = req.app.get('user').email;
+        const {email} = req.user;
         const rooms = await Room.findAll({
             where : {[Op.or] : {user1 : email, user2 : email}},
         });
@@ -85,7 +85,7 @@ router.get('/', verifyToken, async (req, res, next) => {
 
 router.get('/join/:roomId', verifyToken, async (req, res, next) => {
     const {roomId} = req.params;
-    const email = req.app.get('user').email;
+    const {email} = req.user;
     try {
         const {postId} = await Room.findOne({
             where : {roomId},
@@ -108,7 +108,7 @@ router.get('/join/:roomId', verifyToken, async (req, res, next) => {
 
 router.get('/chatLog', verifyToken, async (req, res, next) => {
     const {roomId, count} = req.query;
-    const email = req.app.get('user').email;
+    const {email} = req.user;
     try {
         const logs = await ChatLog.findAll({
             where : {roomId},
