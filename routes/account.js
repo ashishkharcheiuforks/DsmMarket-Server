@@ -28,14 +28,14 @@ router.post('/join', async (req, res, next) => {
 
         if (exEmail) {
             return res.status(403).json({
-                success : false,
-                message : 'existent email',
+                success: false,
+                message: 'existent email',
             });
         }
         else if (exNick) {
             return res.status(403).json({
-                success : false,
-                message : 'existent nick',
+                success: false,
+                message: 'existent nick',
             });
         } else {
             await User.create({
@@ -48,9 +48,9 @@ router.post('/join', async (req, res, next) => {
                 dealLogs,
                 rentLogs,
             });
-            
+
             return res.status(200).json({
-                success : true,
+                success: true,
                 message: 'join success',
             });
         }
@@ -60,8 +60,8 @@ router.post('/join', async (req, res, next) => {
     }
 });
 router.patch('/password', verifyToken, async (req, res, next) => {
-    const email = req.app.get('user').email;
     try {
+        const { email } = req.user;
         const password = await bcrypt.hash(req.body.password, 12);
 
         await User.update({
@@ -71,7 +71,8 @@ router.patch('/password', verifyToken, async (req, res, next) => {
         });
 
         return res.status(200).json({
-            message: 2,
+            success: true,
+            message: 'edit success',
         });
     } catch (err) {
         console.error(err);
@@ -79,10 +80,11 @@ router.patch('/password', verifyToken, async (req, res, next) => {
     }
 });
 router.patch('/nick', verifyToken, async (req, res, next) => {
-    const { email } = req.app.get('user');
-    const nick = req.body.nick;
     try {
+        const { email } = req.user;
+        const nick = req.body.nick;
         const exNick = await User.findOne({ where: { nick } });
+        
         if (exNick) {
             return res.status(403).json({
                 errorCode: 1,
