@@ -39,7 +39,7 @@ router.post('/login', (req, res, next) => {
             },
                 process.env.JWT_SECRET_KEY,
                 {
-                    expiresIn: '5m',
+                    expiresIn: '1m',
                 });
             const refresh_token = jwt.sign({
                 email: user.email,
@@ -47,7 +47,7 @@ router.post('/login', (req, res, next) => {
             },
                 process.env.JWT_SECRET_KEY,
                 {
-                    expiresIn: '100m',
+                    expiresIn: '2m',
                 });
             return res.status(200).json({
                 access_token,
