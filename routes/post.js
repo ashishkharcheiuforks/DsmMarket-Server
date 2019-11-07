@@ -12,7 +12,7 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
     });
     const {title, content, category} = req.body;
     const price = Number(req.body.price).toLocaleString();
-    const email = req.app.get('user').email;
+    const {email} = req.user;
     try {
         const {id, nick} = await User.findOne({
             where : {email},
@@ -38,7 +38,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
     const img = req.file.location;
     const {title, content, category} = req.body;
     const price = req.body.price;
-    const email = req.app.get('user').email;
+    const {email} = req.user;
     try {
         const {id, nick} = await User.findOne({
             where : {email},
@@ -165,7 +165,7 @@ router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
     }
 });
 router.patch('/interest', verifyToken, async (req, res, next) => {
-    const userId = req.app.get('user').userId;
+    const {userId} = req.user;
     const {postId, type} = req.body;
     try {
         const isExist = Number(type) ? await RentPost.findOne({
@@ -193,7 +193,7 @@ router.patch('/interest', verifyToken, async (req, res, next) => {
     }
 });
 router.patch('/uninterest', verifyToken, async (req, res, next) => {
-    const userId = req.app.get('user').userId;
+    const {userId} = req.user;
     const {postId, type} = req.body;
     try {
         await Interest.destroy({where : {userId, postId, type}});
