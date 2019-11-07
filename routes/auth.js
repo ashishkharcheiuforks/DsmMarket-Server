@@ -64,7 +64,7 @@ router.get('/login', verifyToken, async (req, res) => {
         const password = req.query.password;
 
         if (password) {
-            const email = req.app.get('user').email;
+            const { email } = req.user;
             const user = await User.findOne({
                 where: { email },
                 attributes: ['password'],
@@ -100,7 +100,7 @@ router.get('/login', verifyToken, async (req, res) => {
             }
 
         } else {
-            const email = req.app.get('user').email;
+            const { email } = req.user;
             const { nick } = await User.findOne({
                 where: { email },
             });
