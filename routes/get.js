@@ -24,13 +24,13 @@ router.get('/token', (req, res, next) => {
         });
     } catch (err) {
         return res.status(401).json({
-            errorCode : 4,
+            refresh : true,
         });
     }
 });
 router.get('/user/nick', verifyToken, async (req, res) => {
     try {
-        const {email} = req.app.get('user');
+        const {email} = req.user;
         const {nick} = await User.findOne({
             where : {email},
         });
@@ -43,7 +43,7 @@ router.get('/user/nick', verifyToken, async (req, res) => {
     }
 });
 router.get('/list/deal', verifyToken, async (req, res, next) => {
-    const email = req.app.get('user').email;
+    const {email} = req.user;
     const page = Number(req.query.page);
     const pagesize = Number(req.query.pagesize);
     const search = req.query.search ? decodeURI(req.query.search) : false;
@@ -137,7 +137,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/rent', verifyToken, async (req, res, next) => {
-    const email = req.app.get('user').email;
+    const {email} = req.user;
     const page = Number(req.query.page);
     const pagesize = Number(req.query.pagesize);
     const search = req.query.search ? decodeURI(req.query.search) : false;
@@ -239,7 +239,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/post', verifyToken, async (req, res, next) => {
-    const userId = req.app.get('user').userId;
+    const {userId} = req.user;;
     const {postId, type} = req.query;
     try {
         if (Number(type)) {
@@ -416,7 +416,7 @@ router.get('/comment', verifyToken, async (req, res, next) => {
 });
 router.get('/list/interest', verifyToken, async (req, res, next) => {
     const type = req.query.type;
-    const userId = req.app.get('user').userId;
+    const {userId} = req.user;;
     try {
         if (Number(type)) {
             const rentPosts = await Interest.findAll({
@@ -528,7 +528,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/recommend', verifyToken, async (req, res, next) => {
-    const userId = req.app.get('user').userId;
+    const {userId} = req.user;;
     try {
         const posts = await axios.get('http://18.223.169.217/recommend', {
             params : {
@@ -564,7 +564,7 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
-    const userId = req.app.get('user').userId;
+    const {userId} = req.user;;
     try {
         const posts = await DealPost.findAll({
             where : {userId},
@@ -590,7 +590,7 @@ router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/user/list/rent', verifyToken, async (req, res, next) => {
-    const userId = req.app.get('user').userId;
+    const {userId} = req.user;;
     try {
         const posts = await RentPost.findAll({
             where : {userId},
