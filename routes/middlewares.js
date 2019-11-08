@@ -8,7 +8,9 @@ exports.verifyToken = (req, res, next) => {
         next();
     } catch (err) {
         res.status(401).json({
+            success : false,
             refresh : false,
+            message : 'access token is expired',
         });
     }
 };
