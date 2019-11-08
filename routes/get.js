@@ -5,9 +5,8 @@ const axios = require('axios');
 const {User, DealPost, RentPost, Comment, Interest, sequelize, Sequelize : {Op}} = require('../models');
 
 const router = express.Router();
-const referTable = {};
 
-router.get('/token', (req, res, next) => {
+router.get('/token', (req, res) => {
     try {
         const user = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
         const access_token = jwt.sign({
@@ -18,22 +17,25 @@ router.get('/token', (req, res, next) => {
         {
             expiresIn : '5m',
         });
+
         return res.status(200).json({
             access_token,
-            message : 5,
+            success : true,
+            message : 'refresh success',
         });
     } catch (err) {
         return res.status(401).json({
             refresh : true,
+            success : false,
+            message : 'refresh token is expired',
         });
     }
 });
+
 router.get('/user/nick', verifyToken, async (req, res) => {
     try {
-        const {email} = req.user;
-        const {nick} = await User.findOne({
-            where : {email},
-        });
+        const {userId} = req.user;
+        const {nick} = await User.findByPk(userId);
         return res.status(200).json({
             nick,
         });
@@ -42,312 +44,222 @@ router.get('/user/nick', verifyToken, async (req, res) => {
         return next(err);
     }
 });
+
 router.get('/list/deal', verifyToken, async (req, res, next) => {
-    const {email} = req.user;
-    const page = Number(req.query.page);
-    const pagesize = Number(req.query.pagesize);
-    const search = req.query.search ? decodeURI(req.query.search) : false;
-    const category = req.query.category ? decodeURI(req.query.category) : false;
     try {
-        if (referTable.hasOwnProperty(email)) {
-            if (referTable[email].count >= page) {
-                referTable[email].count = page;
-                referTable[email].limit = pagesize;
-                referTable[email].offset = 0;
-            } else {
-                referTable[email].count = page;
-                referTable[email].limit = pagesize;
-                referTable[email].offset += pagesize;
-            }
-        } else {
-            referTable[email] = {
-                count : page,
-                limit : pagesize,
-                offset : 0
-            };    
-        }
+        const {page, pagesize, search, category} = req.query;
+        const offset = Number(page) > 0 ? 20 + Number(pagesize) * Number(page) : 20;
+        const limit = Number(page) > 0 ? Number(pagezie) : 20;
         const list = [];
-        if (category) {
-            const posts = await DealPost.findAll({
-                where : {category : {[Op.like] : `${category}%`}},
-                offset : referTable[email].offset,
-                limit : referTable[email].limit,
+        let posts;
+
+        if (category && search) {
+            posts = await dealPots.findAll({
+                where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}, category : {[Op.like] : `${decodeURI(category)}%`}},
                 order : [['createdAt', 'DESC']],
+                offset,
+                limit,
             });
-            if (search) {
-                posts.forEach(post => {
-                    if (post.title.match(search) || post.content.match(search)) {
-                        list.push({
-                            postId : post.id,
-                            title : post.title,
-                            img : post.img.split('\n')[0],
-                            createdAt : post.createdAt.toString(),
-                            price : `${post.price}원`,
-                        });
-                    }
-                });
-            } else {
-                posts.forEach(post => {
-                    list.push({
-                        postId : post.id,
-                        title : post.title,
-                        img : post.img.split('\n')[0],
-                        createdAt : post.createdAt.toString(),
-                        price : `${post.price}원`,
-                    });
-                });
-            }
+        } else if (search) {
+            posts = await dealPots.findAll({
+                where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}},
+                order : [['createdAt', 'DESC']],
+                offset,
+                limit,
+            });
+        } else if (category) {
+            posts = await dealPots.findAll({
+                where : {category : {[Op.like] : `${decodeURI(category)}%`}},
+                order : [['createdAt', 'DESC']],
+                offset,
+                limit,
+            });
         } else {
-            const posts = await DealPost.findAll({
-                offset : referTable[email].offset,
-                limit : referTable[email].limit,
+            posts = await dealPots.findAll({
                 order : [['createdAt', 'DESC']],
+                offset,
+                limit,
             });
-            if (search) {
-                posts.forEach(post => {
-                    if (post.title.match(search) || post.content.match(search)) {
-                        list.push({
-                            postId : post.id,
-                            title : post.title,
-                            img : post.img.split('\n')[0],
-                            createdAt : post.createdAt.toString(),
-                            price : `${post.price}원`,
-                        });
-                    }
-                });
-            } else {
-                posts.forEach(post => {
-                    list.push({
-                        postId : post.id,
-                        title : post.title,
-                        img : post.img.split('\n')[0],
-                        createdAt : post.createdAt,
-                        price : `${post.price}원`,
-                    });
-                });
-            }
         }
+
+        posts.forEach(post => {
+            const {id, title, img, createdAt, price} = post;
+            list.push({
+                postId : id,
+                title,
+                img : img.split('\n')[0],
+                createdAt,
+                price : `${price}원`,
+            });
+        });
+
+        
         return res.status(200).json({
             list,
-            message : 9,
+            success : true,
+            message : 'refer success',
         });
     } catch (err) {
         console.error(err);
         return next(err);
     }
 });
+
 router.get('/list/rent', verifyToken, async (req, res, next) => {
-    const {email} = req.user;
-    const page = Number(req.query.page);
-    const pagesize = Number(req.query.pagesize);
-    const search = req.query.search ? decodeURI(req.query.search) : false;
-    const category = req.query.category ? decodeURI(req.query.category) : false;
     try {
-        if (referTable.hasOwnProperty(email)) {
-            if (referTable[email].count >= page) {
-                referTable[email].count = page;
-                referTable[email].limit = pagesize;
-                referTable[email].offset = 0;
-            } else {
-                referTable[email].count = page;
-                referTable[email].limit = pagesize;
-                referTable[email].offset += pagesize;
-            }
-        } else {
-            referTable[email] = {
-                count : page,
-                limit : pagesize,
-                offset : 0
-            };    
-        }
+        const {page, pagesize, search, category} = req.query;
+        const offset = Number(page) > 0 ? 20 + Number(pagesize) * Number(page) : 20;
+        const limit = Number(page) > 0 ? Number(pagezie) : 20;
         const list = [];
-        if (category) {
-            const posts = await RentPost.findAll({
-                where : {category : {[Op.like] : `${category}%`}},
-                offset : referTable[email].offset,
-                limit : referTable[email].limit,
+        let posts;
+
+        if (category && search) {
+            posts = await dealPots.findAll({
+                where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}, category : {[Op.like] : `${decodeURI(category)}%`}},
                 order : [['createdAt', 'DESC']],
+                offset,
+                limit,
             });
-            if (search) {
-                posts.forEach(post => {
-                    const flag = Number(post.price.split('/')[0]);
-                    const price = Number(post.price.split('/')[1]).toLocaleString();
-                    if (post.title.match(search) || post.content.match(search)) {
-                        list.push({
-                            postId : post.id,
-                            title : post.title,
-                            img : post.img,
-                            createdAt : post.createdAt,
-                            price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
-                        });
-                    }
-                });
-            } else {
-                posts.forEach(post => {
-                    const flag = Number(post.price.split('/')[0]);
-                    const price = Number(post.price.split('/')[1]).toLocaleString();
-                    list.push({
-                        postId : post.id,
-                        title : post.title,
-                        img : post.img,
-                        createdAt : post.createdAt,
-                        price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
-                    });
-                });
-            }
+        } else if (search) {
+            posts = await dealPots.findAll({
+                where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}},
+                order : [['createdAt', 'DESC']],
+                offset,
+                limit,
+            });
+        } else if (category) {
+            posts = await dealPots.findAll({
+                where : {category : {[Op.like] : `${decodeURI(category)}%`}},
+                order : [['createdAt', 'DESC']],
+                offset,
+                limit,
+            });
         } else {
-            const posts = await RentPost.findAll({
-                offset : referTable[email].offset,
-                limit : referTable[email].limit,
+            posts = await dealPots.findAll({
                 order : [['createdAt', 'DESC']],
+                offset,
+                limit,
             });
-            if (search) {
-                posts.forEach(post => {
-                    const flag = Number(post.price.split('/')[0]);
-                    const price = Number(post.price.split('/')[1]).toLocaleString();
-                    if (post.title.match(search) || post.content.match(search)) {
-                        list.push({
-                            postId : post.id,
-                            title : post.title,
-                            img : post.img,
-                            createdAt : post.createdAt,
-                            price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
-                        });
-                    }
-                });
-            } else {
-                posts.forEach(post => {
-                    const flag = Number(post.price.split('/')[0]);
-                    const price = Number(post.price.split('/')[1]).toLocaleString();
-                    list.push({
-                        postId : post.id,
-                        title : post.title,
-                        img : post.img,
-                        createdAt : post.createdAt,
-                        price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
-                    });
-                });
-            }
         }
+
+        posts.forEach(post => {
+            const {id, title, img, createdAt, price} = post;
+            list.push({
+                postId : id,
+                title,
+                img,
+                createdAt,
+                price : `${price}원`,
+            });
+        });
+
+        
         return res.status(200).json({
             list,
-            message : 9,
+            success : true,
+            message : 'refer success',
         });
     } catch (err) {
         console.error(err);
         return next(err);
     }
 });
+
 router.get('/post', verifyToken, async (req, res, next) => {
-    const {userId} = req.user;;
-    const {postId, type} = req.query;
     try {
+        const {postId, type} = req.query;
+
         if (Number(type)) {
-            const post = await RentPost.findOne({
-                where : {id : postId},
-            });
-            const user = await User.findOne({
-                where : {id : userId},
-            });
-            const rentLogs = JSON.parse(user.rentLogs);
-            const list = [];
-
-            for (rentLog in rentLogs) {
-                list.push(rentLogs[rentLog]);
-            }
-
-            rentLogs.log1 = Number(postId);
-            for(let i = 0; i < 9; i++) {
-                rentLogs[`log${i + 2}`] = Number(list[i]);
-            }
+            const post = await RentPost.findByPk(postId);
 
             if (post) {
-                const flag = Number(post.price.split('/')[0]);
-                const price = post.price.split('/')[1];
+                const {userId} = req.user;
+                const {id, img, author, title, content, createdAt, price, possible_time, category} = post;
+                const user = await User.findByPk(userId);
                 const comments = await Comment.findAll({
                     where : {rentPostId : postId},
                 });
                 const isInterest = await Interest.findOne({
                     where : {userId, postId},
                 });
+                const flag = Number(price.split('/')[0]);
+                const price = price.split('/')[1];
+                const rentLogs = JSON.parse(user.rentLogs);
+                
+                rentLogs.logs.unshift(Number(postId));
+                rentLogs.logs.pop();
+
                 await User.update({
                     rentLogs : JSON.stringify(rentLogs),
                 }, {
                     where : {id : userId},
                 });
+
                 return res.status(200).json({
-                    img : post.img,
-                    id : post.id,
-                    author : post.author,
-                    title : post.title,
-                    content : post.content,
-                    createdAt : post.createdAt,
+                    id,
+                    img,
+                    author,
+                    title,
+                    content,
+                    createdAt,
+                    category,
                     price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
                     possible_time : post.possible_time ? post.possible_time : '',
                     comments : comments.length,
                     interest : isInterest ? true : false,
-                    category : post.category,
                     isMe : post.userId === userId ? true : false,
-                    message : 9,
+                    success : true,
+                    message : 'refer success',
                 });
             } else {
                 return res.status(410).json({
-                    errorCode : 11,
+                    success : false,
+                    message : 'non-existent post',
                 });
             }
         } else {
-            const post = await DealPost.findOne({
-                where : {id : postId},
-            });
-            const user = await User.findOne({
-                where : {id : userId},
-            });
-            const dealLogs = JSON.parse(user.dealLogs);
-            const list = [];
-
-            for (dealLog in dealLogs) {
-                list.push(dealLogs[dealLog]);
-            }
-
-            dealLogs.log1 = Number(postId);
-            for(let i = 0; i < 9; i++) {
-                dealLogs[`log${i + 2}`] = Number(list[i]);
-            }
+            const post = await RentPost.findByPk(postId);
 
             if (post) {
+                const {userId} = req.user;
+                const {id, img, author, title, content, createdAt, price, category} = post;
+                const user = await User.findByPk(userId);
                 const comments = await Comment.findAll({
-                    where : {dealPostId : postId},
+                    where : {rentPostId : postId},
                 });
                 const isInterest = await Interest.findOne({
                     where : {userId, postId},
                 });
-                const urls = [];
-                post.img.split('\n').forEach(url => {
-                    if (url !== '') {
-                        urls.push(url);
-                    }
-                });
+                const dealLogs = JSON.parse(user.daelLogs);
+                
+                daelLogs.logs.unshift(Number(postId));
+                dealLogs.logs.pop();
+
                 await User.update({
-                    dealLogs : JSON.stringify(dealLogs),
+                    rentLogs : JSON.stringify(dealLogs),
                 }, {
                     where : {id : userId},
                 });
+
                 return res.status(200).json({
-                    img : urls,
-                    id : post.id,
-                    author : post.author,
-                    title : post.title,
-                    content : post.content,
-                    createdAt : post.createdAt,
-                    price : `${post.price}원`,
+                    id,
+                    img,
+                    author,
+                    title,
+                    content,
+                    createdAt,
+                    category,
+                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
                     comments : comments.length,
                     interest : isInterest ? true : false,
-                    category : post.category,
-                    message : 9,
+                    isMe : post.userId === userId ? true : false,
+                    success : true,
+                    message : 'refer success',
                 });
             } else {
                 return res.status(410).json({
-                    errorCode : 11,
+                    success : false,
+                    message : 'non-existent post',
                 });
             }
         }
@@ -356,6 +268,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.get('/comment', verifyToken, async (req, res, next) => {
     const {postId, type} = req.query;
     try {
@@ -414,9 +327,10 @@ router.get('/comment', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.get('/list/interest', verifyToken, async (req, res, next) => {
-    const type = req.query.type;
-    const {userId} = req.user;;
+    const {type} = req.query;
+    const {userId} = req.user;
     try {
         if (Number(type)) {
             const rentPosts = await Interest.findAll({
@@ -481,6 +395,7 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.get('/list/related', verifyToken, async (req, res, next) => {
     const {postId, type} = req.query;
     try {
@@ -490,7 +405,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
                 where : {id : Number(postId)},
             });
             const posts = await RentPost.findAll({
-                where : {[Op.and] : {category, id : {[Op.ne] : Number(postId)}}},
+                where : {category, id : {[Op.ne] : Number(postId)}},
                 order : sequelize.random(),
                 limit : 6,
             });
@@ -506,7 +421,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
                 where : {id : Number(postId)},
             });
             const posts = await DealPost.findAll({
-                where : {[Op.and] : {category, id : {[Op.ne] : Number(postId)}}},
+                where : {category, id : {[Op.ne] : Number(postId)}},
                 order : sequelize.random(),
                 limit : 6,
             });
@@ -528,7 +443,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/list/recommend', verifyToken, async (req, res, next) => {
-    const {userId} = req.user;;
+    const {userId} = req.user;
     try {
         const posts = await axios.get('http://18.223.169.217/recommend', {
             params : {
@@ -564,7 +479,7 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
-    const {userId} = req.user;;
+    const {userId} = req.user;
     try {
         const posts = await DealPost.findAll({
             where : {userId},
@@ -590,7 +505,7 @@ router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/user/list/rent', verifyToken, async (req, res, next) => {
-    const {userId} = req.user;;
+    const {userId} = req.user;
     try {
         const posts = await RentPost.findAll({
             where : {userId},
