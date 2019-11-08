@@ -11,16 +11,7 @@ router.post('/join', async (req, res, next) => {
         const { email, password, nick, grade, gender } = req.body;
         const tempPassword = null;
         const dealLogs = JSON.stringify({
-            log1: 0,
-            log2: 0,
-            log3: 0,
-            log4: 0,
-            log5: 0,
-            log6: 0,
-            log7: 0,
-            log8: 0,
-            log9: 0,
-            log10: 0,
+            logs: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         });
         const rentLogs = dealLogs;
         const exEmail = await User.findOne({ where: { email } });
@@ -59,6 +50,7 @@ router.post('/join', async (req, res, next) => {
         return next(err);
     }
 });
+
 router.patch('/password', verifyToken, async (req, res, next) => {
     try {
         const { email } = req.user;
@@ -79,15 +71,17 @@ router.patch('/password', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.patch('/nick', verifyToken, async (req, res, next) => {
     try {
         const { email } = req.user;
-        const nick = req.body.nick;
+        const { nick } = req.body;
         const exNick = await User.findOne({ where: { nick } });
-        
+
         if (exNick) {
             return res.status(403).json({
-                errorCode: 1,
+                success: false,
+                message: 'existent nick',
             });
         } else {
             await DealPost.update({
@@ -115,7 +109,8 @@ router.patch('/nick', verifyToken, async (req, res, next) => {
             });
 
             return res.status(200).json({
-                message: 2,
+                success: true,
+                message: 'edit success',
             });
         }
     } catch (err) {
@@ -123,4 +118,5 @@ router.patch('/nick', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 module.exports = router;
