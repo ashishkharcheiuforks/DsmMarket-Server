@@ -22,17 +22,20 @@ router.post('/login', (req, res, next) => {
             console.error(authError);
             return next(authError);
         }
+
         if (!user) {
             return res.status(403).json({
                 success: false,
                 message: 'incorrect email or password',
             });
         }
+
         return req.login(user, { session: false }, (loginError) => {
             if (loginError) {
                 console.error(loginError);
                 next(loginError);
             }
+
             const access_token = jwt.sign({
                 email: user.email,
                 userId: user.id,
@@ -49,6 +52,7 @@ router.post('/login', (req, res, next) => {
                 {
                     expiresIn: '100m',
                 });
+
             return res.status(200).json({
                 access_token,
                 refresh_token,
@@ -61,7 +65,7 @@ router.post('/login', (req, res, next) => {
 
 router.get('/login', verifyToken, async (req, res) => {
     try {
-        const password = req.query.password;
+        const { password } = req.query;
 
         if (password) {
             const { email } = req.user;
@@ -119,7 +123,7 @@ router.get('/login', verifyToken, async (req, res) => {
 
 router.get('/mail', async (req, res, next) => {
     try {
-        const email = req.query.email;
+        const { email } = req.query;
         const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
         let password = [];
 
