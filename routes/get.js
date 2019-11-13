@@ -177,6 +177,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
 
         if (Number(type)) {
             const post = await RentPost.findByPk(postId);
+            console.log(post);
 
             if (post) {
                 const {userId} = req.user;
