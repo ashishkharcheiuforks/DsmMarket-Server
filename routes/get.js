@@ -177,7 +177,6 @@ router.get('/post', verifyToken, async (req, res, next) => {
 
         if (Number(type)) {
             const post = await RentPost.findByPk(postId);
-            console.log(post);
 
             if (post) {
                 const {userId} = req.user;
@@ -224,7 +223,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 });
             }
         } else {
-            const post = await RentPost.findByPk(postId);
+            const post = await DealPost.findByPk(postId);
 
             if (post) {
                 const {userId} = req.user;
