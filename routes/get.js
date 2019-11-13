@@ -119,28 +119,28 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
         let posts;
 
         if (category && search) {
-            posts = await DealPost.findAll({
+            posts = await RentPost.findAll({
                 where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}, category : {[Op.like] : `${decodeURI(category)}%`}},
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (search) {
-            posts = await DealPost.findAll({
+            posts = await RentPost.findAll({
                 where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}},
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (category) {
-            posts = await DealPost.findAll({
+            posts = await RentPost.findAll({
                 where : {category : {[Op.like] : `${decodeURI(category)}%`}},
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else {
-            posts = await DealPost.findAll({
+            posts = await RentPost.findAll({
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
