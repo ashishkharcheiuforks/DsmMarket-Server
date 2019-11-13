@@ -235,7 +235,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 const isInterest = await Interest.findOne({
                     where : {userId, postId},
                 });
-                const dealLogs = JSON.parse(user.daelLogs);
+                const dealLogs = JSON.parse(user.dealLogs);
                 
                 daelLogs.logs.unshift(Number(postId));
                 dealLogs.logs.pop();
