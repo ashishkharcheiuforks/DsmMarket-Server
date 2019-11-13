@@ -254,7 +254,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content,
                     createdAt,
                     category,
-                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                    price : `${price}원`,
                     comments : comments.length,
                     interest : isInterest ? true : false,
                     isMe : post.userId === userId ? true : false,
