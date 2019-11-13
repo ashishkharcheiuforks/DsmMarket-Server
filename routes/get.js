@@ -48,7 +48,7 @@ router.get('/user/nick', verifyToken, async (req, res) => {
 router.get('/list/deal', verifyToken, async (req, res, next) => {
     try {
         const {page, pagesize, search, category} = req.query;
-        const offset = Number(page) > 0 ? 20 + Number(pagesize) * Number(page) : 20;
+        const offset = Number(page) > 0 ? Number(pagesize) * Number(page) : 0;
         const limit = Number(page) > 0 ? Number(pagesize) : 20;
         const list = [];
         let posts;
@@ -113,7 +113,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
 router.get('/list/rent', verifyToken, async (req, res, next) => {
     try {
         const {page, pagesize, search, category} = req.query;
-        const offset = Number(page) > 0 ? 20 + Number(pagesize) * Number(page) : 20;
+        const offset = Number(page) > 0 ? Number(pagesize) * Number(page) : 0;
         const limit = Number(page) > 0 ? Number(pagesize) : 20;
         const list = [];
         let posts;
