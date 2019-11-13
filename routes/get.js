@@ -208,7 +208,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content,
                     createdAt,
                     category,
-                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                    price : flag ? `1시간 당 ${Number(price.split('/')[1]).toLocaleString()}원` : `1회 당 ${Number(price.split('/')[1]).toLocaleString()}원`,
                     possible_time : possible_time ? possible_time : '',
                     comments : comments.length,
                     interest : isInterest ? true : false,
@@ -227,7 +227,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
 
             if (post) {
                 const {userId} = req.user;
-                const {id, img, author, title, content, createdAt, price, category} = post;
+                const {id, author, title, content, createdAt, price, category} = post;
                 const user = await User.findByPk(userId);
                 const comments = await Comment.findAll({
                     where : {rentPostId : postId},
@@ -236,9 +236,15 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     where : {userId, postId},
                 });
                 const dealLogs = JSON.parse(user.dealLogs);
-                
+                const img = [];
+
                 dealLogs.logs.unshift(Number(postId));
                 dealLogs.logs.pop();
+                post.img.split('\n').forEach(url => {
+                    if (url !== '') {
+                        img.push(url);
+                    }
+                });
 
                 await User.update({
                     dealLogs : JSON.stringify(dealLogs),
@@ -450,7 +456,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
     }
 });
 
-/*router.get('/list/recommend', verifyToken, async (req, res, next) => {
+router.get('/list/recommend', verifyToken, async (req, res, next) => {
     const {userId} = req.user;
     try {
         const posts = await axios.get('http://18.223.169.217/recommend', {
@@ -485,7 +491,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
         console.error(err);
         return next(err);
     }
-});*/
+});
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     try {
         const {userId} = req.user;
