@@ -84,8 +84,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                 limit,
             });
             console.log('4');
-
-            console.log(posts);
+            console.log(offset, limit);
         }
 
         posts.forEach(post => {
