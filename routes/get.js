@@ -180,7 +180,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
 
             if (post) {
                 const {userId} = req.user;
-                const {id, img, author, title, content, createdAt, possible_time, category} = post;
+                const {id, img, author, title, content, createdAt, possible_time, price, category} = post;
                 const user = await User.findByPk(userId);
                 const comments = await Comment.findAll({
                     where : {rentPostId : postId},
@@ -527,19 +527,21 @@ router.get('/user/list/rent', verifyToken, async (req, res, next) => {
         const list = [];
 
         posts.forEach(post => {
+            const {id, img, title, createdAt, price} = post;
             const flag = Number(post.price.split('/')[0]);
             list.push({
-                postId : post.id,
-                img : post.img,
-                title : post.title,
-                createdAt : post.createdAt,
-                price : flag ? `1시간 당 ${price.split('/')[1].toLocaleString()}원` : `1회 당 ${price.split('/')[1].toLocaleString()}원`,
+                postId : id,
+                img : img,
+                title : title,
+                createdAt : createdAt,
+                price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
             });
         });
 
         return res.status(200).json({
             list,
-            message : 9,
+            success : true,
+            message : 'refer success',
         });
     } catch (err) {
         console.error(err);
