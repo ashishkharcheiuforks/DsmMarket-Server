@@ -54,28 +54,28 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
         let posts;
 
         if (category && search) {
-            posts = await dealPots.findAll({
+            posts = await DealPost.findAll({
                 where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}, category : {[Op.like] : `${decodeURI(category)}%`}},
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (search) {
-            posts = await dealPots.findAll({
+            posts = await DealPost.findAll({
                 where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}},
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (category) {
-            posts = await dealPots.findAll({
+            posts = await DealPost.findAll({
                 where : {category : {[Op.like] : `${decodeURI(category)}%`}},
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else {
-            posts = await dealPots.findAll({
+            posts = await DealPost.findAll({
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
@@ -114,28 +114,28 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
         let posts;
 
         if (category && search) {
-            posts = await dealPots.findAll({
+            posts = await DealPost.findAll({
                 where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}, category : {[Op.like] : `${decodeURI(category)}%`}},
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (search) {
-            posts = await dealPots.findAll({
+            posts = await DealPost.findAll({
                 where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}},
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (category) {
-            posts = await dealPots.findAll({
+            posts = await DealPost.findAll({
                 where : {category : {[Op.like] : `${decodeURI(category)}%`}},
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else {
-            posts = await dealPots.findAll({
+            posts = await DealPost.findAll({
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
