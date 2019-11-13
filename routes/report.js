@@ -38,7 +38,7 @@ router.post('/post', verifyToken, async (req, res, next) => {
     }
 });
 
-router.post('/comment', verifyToken, (req, res, next) => {
+router.post('/comment', verifyToken, async (req, res, next) => {
     try {
         const { postId, type, nick, reason } = req.body;
         const mailOptions = {
