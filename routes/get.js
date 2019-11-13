@@ -85,11 +85,11 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
         posts.forEach(post => {
             const {id, title, img, createdAt, price} = post;
             list.push({
-                postId : id,
                 title,
-                img : img.split('\n')[0],
                 createdAt,
-                price : `${price}원`,
+                postId : id,
+                img : img.split('\n')[0],
+                price : `${price.toLocaleString()}원`,
             });
         });
 
@@ -144,12 +144,13 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
 
         posts.forEach(post => {
             const {id, title, img, createdAt, price} = post;
+            const flag = Number(price.split('/')[0]);
             list.push({
-                postId : id,
                 title,
                 img,
                 createdAt,
-                price : `${price}원`,
+                postId : id,
+                price : flag ? `1시간 당 ${price.split('/')[1].toLocaleString()}원` : `1회 당 ${price.split('/')[1].toLocaleString()}원`,
             });
         });
 
@@ -174,7 +175,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
 
             if (post) {
                 const {userId} = req.user;
-                const {id, img, author, title, content, createdAt, price, possible_time, category} = post;
+                const {id, img, author, title, content, createdAt, possible_time, category} = post;
                 const user = await User.findByPk(userId);
                 const comments = await Comment.findAll({
                     where : {rentPostId : postId},
@@ -183,7 +184,6 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     where : {userId, postId},
                 });
                 const flag = Number(price.split('/')[0]);
-                const price = price.split('/')[1];
                 const rentLogs = JSON.parse(user.rentLogs);
                 
                 rentLogs.logs.unshift(Number(postId));
@@ -203,8 +203,8 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content,
                     createdAt,
                     category,
-                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
-                    possible_time : post.possible_time ? post.possible_time : '',
+                    price : flag ? `1시간 당 ${price.split('/')[1].toLocaleString()}원` : `1회 당 ${price.split('/')[1].toLocaleString()}원`,
+                    possible_time : possible_time ? possible_time : '',
                     comments : comments.length,
                     interest : isInterest ? true : false,
                     isMe : post.userId === userId ? true : false,
@@ -249,7 +249,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content,
                     createdAt,
                     category,
-                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                    price : flag ? `1시간 당 ${price.toLocaleString()}원` : `1회 당 ${price.toLocaleString()}원`,
                     comments : comments.length,
                     interest : isInterest ? true : false,
                     isMe : post.userId === userId ? true : false,
@@ -270,56 +270,60 @@ router.get('/post', verifyToken, async (req, res, next) => {
 });
 
 router.get('/comment', verifyToken, async (req, res, next) => {
-    const {postId, type} = req.query;
     try {
-        const isExist = Number(type) ? await RentPost.findOne({
-            where : {id : postId},
-        }) : await DealPost.findOne({
-            where : {id : postId},
-        });
+        const {postId, type} = req.query;
+        const isExist = Number(type) ? await RentPost.findByPk(postId) : await DealPost.findByPk(postId);
+        
         if (isExist) {
             if (Number(type)) {
                 const comments = await Comment.findAll({
                     where : {rentPostId : postId},
-                    attributes : ['nick', 'content', 'createdAt'],
                     order : [['createdAt', 'DESC']],
                 });
                 const list = [];
+
                 comments.forEach(comment => {
                     const {nick, content, createdAt} = comment;
+                    
                     list.push({
                         nick,
                         content,
                         createdAt,
                     });
                 });
+
                 return res.status(200).json({
                     list,
-                    message : 9,
+                    success : true,
+                    message : 'refer success',
                 });
             } else {
                 const comments = await Comment.findAll({
                     where : {dealPostId : postId},
-                    attributes : ['nick', 'content', 'createdAt'],
                     order : [['createdAt', 'DESC']],
                 });
                 const list = [];
+
                 comments.forEach(comment => {
                     const {nick, content, createdAt} = comment;
+                    
                     list.push({
                         nick,
                         content,
                         createdAt,
                     });
                 });
+
                 return res.status(200).json({
                     list,
-                    message : 9,
+                    success : true,
+                    message : 'refer success',
                 });
             }
         } else {
             return res.status(410).json({
-                errorCode : 11,
+                success : false,
+                message : 'non-existent post',
             });
         }
     } catch (err) {
@@ -329,67 +333,65 @@ router.get('/comment', verifyToken, async (req, res, next) => {
 });
 
 router.get('/list/interest', verifyToken, async (req, res, next) => {
-    const {type} = req.query;
-    const {userId} = req.user;
     try {
+        const {type} = req.query;
+        const {userId} = req.user;
+        const postIds = [];
+        const list = [];
+        const interests = await Interest.findAll({
+            where : {userId, type},
+            order : [['createdAt', 'DESC']],
+        });
+
         if (Number(type)) {
-            const rentPosts = await Interest.findAll({
-                where : {userId, type},
-                attributes : ['postId'],
-                order : [['createdAt', 'DESC']],
+            interests.forEach(interest => {
+                postIds.push(interest.postId);
             });
-            const postIds = [];
-            rentPosts.forEach(rentPost => {
-                postIds.push(rentPost.postId);
-            });
+
             const posts = await RentPost.findAll({
                 where : {id : {[Op.in] : postIds}},
                 order : [['createdAt', 'DESC']],
             });
-            const list = [];
+
             posts.forEach(post => {
-                const flag = Number(post.price.split('/')[0]);
+                const {id, img, title, createdAt, price} = post;
+                const flag = Number(price.split('/')[0]);
+
                 list.push({
-                    postId : post.id,
-                    img : post.img,
-                    title : post.title,
-                    createdAt : post.createdAt,
+                    img,
+                    title,
+                    createdAt,
+                    postId : id,
                     price : flag ? `1시간 당 ${post.price.split('/')[1]}원` : `1회 당 ${post.price.split('/')[1]}원`,
                 });
             });
-            return res.status(200).json({
-                list,
-                message : 9,
-            });
         } else {
-            const dealPosts = await Interest.findAll({
-                where : {userId, type},
-                attributes : ['postId'],
-                order : [['createdAt', 'DESC']],
+            interests.forEach(interest => {
+                postIds.push(interest.postId);
             });
-            const postIds = [];
-            dealPosts.forEach(dealPost => {
-                postIds.push(dealPost.postId);
-            });
+
             const posts = await DealPost.findAll({
                 where : {id : {[Op.in] : postIds}},
                 order : [['createdAt', 'DESC']],
             });
-            const list = [];
+
             posts.forEach(post => {
+                const {id, img, title, createdAt, price} = post;
+
                 list.push({
-                    postId : post.id,
-                    img : post.img.split('\n')[0],
-                    title : post.title,
-                    createdAt : post.createdAt,
-                    price : `${post.price}원`,
+                    img,
+                    title,
+                    createdAt,
+                    postId : id,
+                    price : `${price}원`,
                 });
             });
-            return res.status(200).json({
-                list,
-                message : 9,
-            });
         }
+        return res.status(200).json({
+            list,
+            success : true,
+            message : 'refer success',
+        });
     } catch (err) {
         console.error(err);
         return next(err);
@@ -442,6 +444,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.get('/list/recommend', verifyToken, async (req, res, next) => {
     const {userId} = req.user;
     try {
@@ -479,50 +482,56 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
-    const {userId} = req.user;
     try {
+        const {userId} = req.user;
         const posts = await DealPost.findAll({
             where : {userId},
             order : [['createdAt', 'DESC']],
         });
         const list = [];
+
         posts.forEach(post => {
+            const {id, img, title, createdAt, price} = post;
             list.push({
-                postId : post.id,
-                img : post.img.split('\n')[0],
-                title : post.title,
-                createdAt : post.createdAt,
-                price : `${post.price}원`,
+                title,
+                createdAt,
+                postId : id,
+                img : img.split('\n')[0],
+                price : `${price}원`,
             });
         });
+
         return res.status(200).json({
             list,
-            message : 9,
+            success : true,
+            message : 'refer success',
         });
     } catch (err) {
         console.error(err);
         return next(err);
     }
 });
+
 router.get('/user/list/rent', verifyToken, async (req, res, next) => {
-    const {userId} = req.user;
     try {
+        const {userId} = req.user;
         const posts = await RentPost.findAll({
             where : {userId},
             order : [['createdAt', 'DESC']],
         });
         const list = [];
+
         posts.forEach(post => {
             const flag = Number(post.price.split('/')[0]);
-            const price = Number(post.price.split('/')[1]).toLocaleString();
             list.push({
                 postId : post.id,
                 img : post.img,
                 title : post.title,
                 createdAt : post.createdAt,
-                price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                price : flag ? `1시간 당 ${price.split('/')[1].toLocaleString()}원` : `1회 당 ${price.split('/')[1].toLocaleString()}원`,
             });
         });
+
         return res.status(200).json({
             list,
             message : 9,
