@@ -49,7 +49,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
     try {
         const {page, pagesize, search, category} = req.query;
         const offset = Number(page) > 0 ? 20 + Number(pagesize) * Number(page) : 20;
-        const limit = Number(page) > 0 ? Number(pageszie) : 20;
+        const limit = Number(page) > 0 ? Number(pagesize) : 20;
         const list = [];
         let posts;
 
@@ -60,6 +60,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                 offset,
                 limit,
             });
+            console.log('1');
         } else if (search) {
             posts = await DealPost.findAll({
                 where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}},
@@ -67,6 +68,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                 offset,
                 limit,
             });
+            console.log('2');
         } else if (category) {
             posts = await DealPost.findAll({
                 where : {category : {[Op.like] : `${decodeURI(category)}%`}},
@@ -74,12 +76,14 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                 offset,
                 limit,
             });
+            console.log('3');
         } else {
             posts = await DealPost.findAll({
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
+            console.log('4');
         }
 
         posts.forEach(post => {
