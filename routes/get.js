@@ -155,7 +155,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
                 img,
                 createdAt,
                 postId : id,
-                price : flag ? `1시간 당 ${price.split('/')[1].toLocaleString()}원` : `1회 당 ${price.split('/')[1].toLocaleString()}원`,
+                price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
             });
         });
 
@@ -208,7 +208,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content,
                     createdAt,
                     category,
-                    price : flag ? `1시간 당 ${price.split('/')[1].toLocaleString()}원` : `1회 당 ${price.split('/')[1].toLocaleString()}원`,
+                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
                     possible_time : possible_time ? possible_time : '',
                     comments : comments.length,
                     interest : isInterest ? true : false,
@@ -254,7 +254,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content,
                     createdAt,
                     category,
-                    price : flag ? `1시간 당 ${price.toLocaleString()}원` : `1회 당 ${price.toLocaleString()}원`,
+                    price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
                     comments : comments.length,
                     interest : isInterest ? true : false,
                     isMe : post.userId === userId ? true : false,
