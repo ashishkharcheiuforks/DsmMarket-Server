@@ -237,11 +237,11 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 });
                 const dealLogs = JSON.parse(user.dealLogs);
                 
-                daelLogs.logs.unshift(Number(postId));
+                dealLogs.logs.unshift(Number(postId));
                 dealLogs.logs.pop();
 
                 await User.update({
-                    rentLogs : JSON.stringify(dealLogs),
+                    dealLogs : JSON.stringify(dealLogs),
                 }, {
                     where : {id : userId},
                 });
