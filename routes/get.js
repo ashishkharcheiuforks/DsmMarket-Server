@@ -49,7 +49,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
     try {
         const {page, pagesize, search, category} = req.query;
         const offset = Number(page) > 0 ? 20 + Number(pagesize) * Number(page) : 20;
-        const limit = Number(page) > 0 ? Number(pagezie) : 20;
+        const limit = Number(page) > 0 ? Number(pageszie) : 20;
         const list = [];
         let posts;
 
