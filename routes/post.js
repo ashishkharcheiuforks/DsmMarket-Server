@@ -34,6 +34,7 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
         return next(err);
     }
 });
+
 router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) => {
     const img = req.file.location;
     const {title, content, category} = req.body;
@@ -61,6 +62,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
         return next(err);
     }
 });
+
 router.patch('/deal', verifyToken, async (req, res, next) => {
     const {postId, title, content, price, category} = req.body;
     try {
@@ -80,6 +82,7 @@ router.patch('/deal', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.patch('/rent', verifyToken, async (req, res, next) => {
     const {postId, title, content, price, category, possible_time} = req.body;
     try {
@@ -100,6 +103,7 @@ router.patch('/rent', verifyToken, async (req, res, next) => {
         return next();
     }
 });
+
 router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
     const id = req.params.postId;
     try {
@@ -134,6 +138,7 @@ router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
     const id = req.params.postId;
     try {
@@ -164,27 +169,28 @@ router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.patch('/interest', verifyToken, async (req, res, next) => {
-    const {userId} = req.user;
-    const {postId, type} = req.body;
     try {
-        const isExist = Number(type) ? await RentPost.findOne({
-            where : {id : postId},
-        }) : await DealPost.findOne({
-            where : {id : postId},
-        });
+        const {userId} = req.user;
+        const {postId, type} = req.body;
+        const isExist = Number(type) ? await RentPost.findByPk(postId) : await DealPost.findByPk(postId);
+
         if (isExist) {
             await Interest.create({
                 userId,
                 postId,
                 type,
             });
+
             return res.status(200).json({
-                message : 8,
+                success : true,
+                message : 'interest success',
             });
         } else {
             return res.status(410).json({
-                errorCode : 11,
+                success : false,
+                message : 'non-existent post',
             });
         }
     } catch (err) {
@@ -192,44 +198,65 @@ router.patch('/interest', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.patch('/uninterest', verifyToken, async (req, res, next) => {
-    const {userId} = req.user;
-    const {postId, type} = req.body;
     try {
-        await Interest.destroy({where : {userId, postId, type}});
-        return res.status(200).json({
-            message : 8,
-        });
-    } catch (err) {
-        console.error(err);
-        return next(err);
-    }
-});
-router.post('/comment', verifyToken, async (req, res, next) => {
-    const {email} = req.app.get('user');
-    const {postId, content, type} = req.body;
-    try {
-        const {nick} = await User.findOne({
-            where : {email},
-        });
-        if (Number(type)) {
-            await Comment.create({
-                email,
-                nick,
-                content,
-                rentPostId : postId,
+        const {userId} = req.user;
+        const {postId, type} = req.body;
+        const isExist = Number(type) ? await RentPost.findByPk(postId) : await DealPost.findByPk(postId);
+
+        if (isExist) {
+            await Interest.destroy({where : {userId, postId, type}});
+
+            return res.status(200).json({
+                success : true,
+                message : 'uninterest success',
             });
         } else {
-            await Comment.create({
-                email,
-                nick,
-                content,
-                dealPostId : postId,
+            return res.status(410).json({
+                success : false,
+                message : 'non-existent post',
             });
         }
-        return res.status(200).json({
-            message : 12,
-        });
+    } catch (err) {
+        console.error(err);
+        return next(err);
+    }
+});
+
+router.post('/comment', verifyToken, async (req, res, next) => {
+    try {
+        const {userId} = req.user;
+        const {postId, content, type} = req.body;
+        const {email, nick} = await User.findByPk(userId);
+        const isExist = Number(type) ? await RentPost.findByPk(postId) : await DealPost.findByPk(postId);
+        
+        if(isExist) {
+            if (Number(type)) {
+                await Comment.create({
+                    email,
+                    nick,
+                    content,
+                    rentPostId : postId,
+                });
+            } else {
+                await Comment.create({
+                    email,
+                    nick,
+                    content,
+                    dealPostId : postId,
+                });
+            }
+
+            return res.status(200).json({
+                message : 12,
+            });
+        } else {
+            return res.status(410).json({
+                success : false,
+                message : 'non-existent post',
+            });
+        }
     } catch (err) {
         console.error(err);
         return next(err);
