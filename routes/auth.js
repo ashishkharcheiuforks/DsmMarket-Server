@@ -136,8 +136,8 @@ router.get('/mail', async (req, res, next) => {
             to: req.query.email,
             subject: '[대마장터] 임시 비밀번호를 확인하세요.',
             html: `<h1>안녕하세요. 대마장터입니다.<h1>
-        <h1>하단의 임시 비밀번호로 로그인하세요.<h1>
-        <h3>인증코드 : ${password}}<h3>`,
+            <h1>하단의 임시 비밀번호로 로그인하세요.<h1>
+            <h3>인증코드 : ${password}}<h3>`,
         };
         const tempPassword = await bcrypt.hash(password, 12);
 
