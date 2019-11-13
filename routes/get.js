@@ -84,9 +84,9 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                 limit,
             });
             console.log('4');
-        }
 
-        console.log(posts);
+            console.log(posts);
+        }
 
         posts.forEach(post => {
             const {id, title, img, createdAt, price} = post;
