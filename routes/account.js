@@ -31,13 +31,13 @@ router.post('/join', async (req, res, next) => {
         } else {
             await User.create({
                 email,
-                password: await bcrypt.hash(password, 12),
                 tempPassword,
                 nick,
                 grade,
                 gender,
                 dealLogs,
                 rentLogs,
+                password: await bcrypt.hash(password, 12),
             });
 
             return res.status(200).json({
