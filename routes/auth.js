@@ -104,7 +104,7 @@ router.get('/mail', async (req, res, next) => {
     try {
         const { email } = req.query;
         const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
-        let password = [];
+        let password = ''
 
         for (let i = 0; i < 10; i++) {
             password += str[Math.floor(Math.random() * str.length)];
@@ -116,9 +116,9 @@ router.get('/mail', async (req, res, next) => {
             subject: '[대마장터] 임시 비밀번호를 확인하세요.',
             html: `<h1>안녕하세요. 대마장터입니다.<h1>
             <h1>하단의 임시 비밀번호로 로그인하세요.<h1>
-            <h3>인증코드 : ${password.join('')}<h3>`,
+            <h3>인증코드 : ${password}<h3>`,
         };
-        const tempPassword = await bcrypt.hash(password.join(''), 12);
+        const tempPassword = await bcrypt.hash(password, 12);
 
         await User.update({
             tempPassword,
