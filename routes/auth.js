@@ -65,18 +65,15 @@ router.post('/login', (req, res, next) => {
 
 router.get('/login', verifyToken, async (req, res) => {
     try {
-        const { password } = req.query;
+        const inputtedPassword = req.query.password;
 
         if (password) {
-            const { email } = req.user;
-            const user = await User.findOne({
-                where: { email },
-                attributes: ['password'],
-            });
-            const isSame1 = await bcrypt.compare(password, user.password);
+            const { userId } = req.user;
+            const {password, tempPassword} = await User.findByPk(userId);
+            const isSame1 = await bcrypt.compare(inputtedPassword, password);
 
             if (user.tempPassword) {
-                const isSame2 = await bcrypt.compare(password, user.tempPassword);
+                const isSame2 = await bcrypt.compare(inputtedPassword, tempPassword);
 
                 if (isSame1 | isSame2) {
                     return res.status(200).json({
@@ -127,7 +124,7 @@ router.get('/mail', async (req, res, next) => {
         const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
         let password = [];
 
-        for (let i = 0; i < str.length; i++) {
+        for (let i = 0; i < 10; i++) {
             password += str[Math.floor(Math.random() * str.length)];
         }
 
@@ -137,7 +134,7 @@ router.get('/mail', async (req, res, next) => {
             subject: '[대마장터] 임시 비밀번호를 확인하세요.',
             html: `<h1>안녕하세요. 대마장터입니다.<h1>
             <h1>하단의 임시 비밀번호로 로그인하세요.<h1>
-            <h3>인증코드 : ${password}}<h3>`,
+            <h3>인증코드 : ${password}<h3>`,
         };
         const tempPassword = await bcrypt.hash(password, 12);
 
