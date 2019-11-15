@@ -67,7 +67,7 @@ router.get('/login', verifyToken, async (req, res) => {
     try {
         const inputtedPassword = req.query.password;
 
-        if (password) {
+        if (inputtedPassword) {
             const { userId } = req.user;
             const {password, tempPassword} = await User.findByPk(userId);
             const isSame1 = await bcrypt.compare(inputtedPassword, password);
