@@ -8,12 +8,8 @@ const router = express.Router();
 
 router.post('/join', async (req, res, next) => {
     try {
-        const { email, password, nick, grade, gender } = req.body;
-        const tempPassword = null;
-        const dealLogs = JSON.stringify({
-            logs: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        });
-        const rentLogs = dealLogs;
+        const { email, nick } = req.body;
+
         const exEmail = await User.findOne({ where: { email } });
         const exNick = await User.findOne({ where: { nick } });
 
@@ -29,6 +25,12 @@ router.post('/join', async (req, res, next) => {
                 message: 'existent nick',
             });
         } else {
+            const { password, grade, gender } = req.body;
+            const tempPassword = null;
+            const dealLogs = JSON.stringify({
+                logs: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            });
+            const rentLogs = dealLogs;
             await User.create({
                 email,
                 tempPassword,
