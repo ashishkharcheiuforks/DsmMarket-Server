@@ -109,7 +109,7 @@ router.get('/mail', async (req, res, next) => {
         for (let i = 0; i < 10; i++) {
             password += str[Math.floor(Math.random() * str.length)];
         }
-
+        console.log(password);
         const mailOptions = {
             from: 'dsmplanb@gmail.com',
             to: req.query.email,
