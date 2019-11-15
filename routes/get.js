@@ -155,7 +155,7 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
                 img,
                 createdAt,
                 postId : id,
-                price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                price : flag ? `1시간 당 ${Number(price.split('/')[1]).toLocaleString()}원` : `1회 당 ${Number(price.split('/')[1]).toLocaleString()}원`,
             });
         });
 
@@ -540,7 +540,7 @@ router.get('/user/list/rent', verifyToken, async (req, res, next) => {
                 img : img,
                 title : title,
                 createdAt : createdAt,
-                price : flag ? `1시간 당 ${price}원` : `1회 당 ${price}원`,
+                price : flag ? `1시간 당 ${Number(price.split('/')[1]).toLocaleString()}원` : `1회 당 ${Number(price.split('/')[1]).toLocaleString()}원`,
             });
         });
 
