@@ -230,7 +230,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 const {id, author, title, content, createdAt, price, category} = post;
                 const user = await User.findByPk(userId);
                 const comments = await Comment.findAll({
-                    where : {rentPostId : postId},
+                    where : {dealPostId : postId},
                 });
                 const isInterest = await Interest.findOne({
                     where : {userId, postId},
