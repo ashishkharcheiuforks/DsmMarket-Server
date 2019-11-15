@@ -15,6 +15,7 @@ module.exports = (passport) => {
                 const result1 = await bcrypt.compare(password, exUser.password);
                 if (exUser.tempPassword) {
                     const result2 = await bcrypt.compare(password, exUser.tempPassword);
+                    console.log(result1, result2);
                     if (result1 || result2) {
                         done(null, exUser);
                     } else {
