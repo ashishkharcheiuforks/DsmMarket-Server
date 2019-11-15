@@ -75,7 +75,7 @@ router.get('/login', verifyToken, async (req, res) => {
             if (user.tempPassword) {
                 const isSame2 = await bcrypt.compare(inputtedPassword, tempPassword);
 
-                if (isSame1 | isSame2) {
+                if (isSame1 || isSame2) {
                     return res.status(200).json({
                         success: true,
                         message: 'auth success',
