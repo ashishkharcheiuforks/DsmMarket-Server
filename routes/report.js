@@ -15,12 +15,13 @@ const transporter = nodemailer.createTransport({
 
 router.post('/post', verifyToken, async (req, res, next) => {
     try {
+        const {email} = req.user;
         const { postId, type, reason } = req.body;
         const mailOptions = {
             from: 'dsmplanb@gmail.com',
             to: 'dsmplanb@gmail.com',
             subject: moment().format("YYYY년 MM월 DD일 HH시 mm분 게시물 신고"),
-            text: `신고자 ID :${req.app.get('user').email}
+            text: `신고자 ID :${email}
             게시물 타입 : ${Number(type) ? '대여글' : '거래글'}
             게시물 ID : ${postId}
             신고사유 : ${reason}`,
@@ -40,12 +41,13 @@ router.post('/post', verifyToken, async (req, res, next) => {
 
 router.post('/comment', verifyToken, async (req, res, next) => {
     try {
+        const {email} = req.user;
         const { postId, type, nick, reason } = req.body;
         const mailOptions = {
             from: 'dsmplanb@gmail.com',
             to: 'dsmplanb@gmail.com',
             subject: moment().format("YYYY년 MM월 DD일 HH시 mm분 댓글 신고"),
-            text: `신고자 ID :${req.app.get('user').email}
+            text: `신고자 ID :${email}
             게시물 타입 : ${Number(type) ? '대여글' : '거래글'}
             게시물 ID : ${postId}
             댓글 작성자 : ${nick}
