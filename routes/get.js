@@ -466,7 +466,7 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
             }
         });
         const list = [];
-        console.log(posts.data.list);
+        console.log(posts);
         for (const postId of posts.data.list) {
             if (Number(postId) !== 0) {
                 const post = await DealPost.findOne({
