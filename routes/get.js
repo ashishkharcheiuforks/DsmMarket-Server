@@ -182,7 +182,6 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 const isInterest = await Interest.findOne({
                     where : {userId, postId},
                 });
-                const flag = Number(price.split('/')[0]);
                 const rentLogs = JSON.parse(user.rentLogs);
                 
                 rentLogs.logs.unshift(Number(postId));
@@ -202,7 +201,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content,
                     createdAt,
                     category,
-                    price : flag ? `1시간 당 ${Number(price.split('/')[1]).toLocaleString()}원` : `1회 당 ${Number(price.split('/')[1]).toLocaleString()}원`,
+                    price,
                     possible_time : possible_time ? possible_time : '',
                     comments : comments.length,
                     interest : isInterest ? true : false,
@@ -276,6 +275,7 @@ router.get('/post', verifyToken, async (req, res, next) => {
 
 router.get('/comment', verifyToken, async (req, res, next) => {
     try {
+        const isMe = req.user.email;
         const {postId, type} = req.query;
         const isExist = Number(type) ? await RentPost.findByPk(postId) : await DealPost.findByPk(postId);
         
@@ -310,12 +310,13 @@ router.get('/comment', verifyToken, async (req, res, next) => {
                 const list = [];
 
                 comments.forEach(comment => {
-                    const {nick, content, createdAt} = comment;
+                    const {email, nick, content, createdAt} = comment;
                     
                     list.push({
                         nick,
                         content,
                         createdAt,
+                        isMe : email === isMe ? true : false,
                     });
                 });
 
@@ -360,14 +361,13 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
 
             posts.forEach(post => {
                 const {id, img, title, createdAt, price} = post;
-                const flag = Number(price.split('/')[0]);
 
                 list.push({
                     img,
                     title,
+                    price,
                     createdAt,
                     postId : id,
-                    price : flag ? `1시간 당 ${post.price.split('/')[1]}원` : `1회 당 ${post.price.split('/')[1]}원`,
                 });
             });
         } else {
@@ -386,9 +386,9 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
                 list.push({
                     img,
                     title,
+                    price,
                     createdAt,
                     postId : id,
-                    price : `${price}원`,
                 });
             });
         }
@@ -442,7 +442,8 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
         }
         return res.status(200).json({
             list,
-            message : 9,
+            success : true,
+            message : 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -463,30 +464,27 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
         console.log(posts);
         for (const postId of posts.data.list) {
             if (Number(postId) !== 0) {
-                const post = await DealPost.findOne({
-                    where : {id : Number(postId)},
-                });
+                const { id, title, img } = await DealPost.findByPk(postId);
                 
-                if (post) {
-                    const {id, title, img} = post;
-                    list.push({
-                        postId : id,
-                        title,
-                        img,
-                    });
-                }
+                list.push({
+                    postId: id,
+                    title,
+                    img,
+                });
             }
         }
 
         return res.status(200).json({
             list,
-            message : 9,
+            success : true,
+            message : 'refer success',
         });
     } catch (err) {
         console.error(err);
         return next(err);
     }
 });
+
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     try {
         const {userId} = req.user;
@@ -498,12 +496,13 @@ router.get('/user/list/deal', verifyToken, async (req, res, next) => {
 
         posts.forEach(post => {
             const {id, img, title, createdAt, price} = post;
+            
             list.push({
                 title,
+                price,
                 createdAt,
                 postId : id,
                 img : img.split('\n')[0],
-                price : `${price}원`,
             });
         });
 
@@ -529,13 +528,13 @@ router.get('/user/list/rent', verifyToken, async (req, res, next) => {
 
         posts.forEach(post => {
             const {id, img, title, createdAt, price} = post;
-            const flag = Number(post.price.split('/')[0]);
+
             list.push({
+                img,
+                title,
+                price,
+                createdAt,
                 postId : id,
-                img : img,
-                title : title,
-                createdAt : createdAt,
-                price : flag ? `1시간 당 ${Number(price.split('/')[1]).toLocaleString()}원` : `1회 당 ${Number(price.split('/')[1]).toLocaleString()}원`,
             });
         });
 
@@ -550,18 +549,19 @@ router.get('/user/list/rent', verifyToken, async (req, res, next) => {
     }
 });
 router.get('/deal/img', verifyToken, async (req, res, next) => {
-    const id = req.query.postId;
     try {
-        const {img} = await DealPost.findOne({
-            where : {id},
-        });
+        const {postId} = req.query;
+        const {img} = await DealPost.findByPk(postId);
+
         if (img) {
             const list = [];
+
             img.split('\n').forEach(url => {
                 if (url !== '') {
                     list.push(url);
                 }
             });
+
             return res.status(200).json({
                 list,
                 message : 9,
