@@ -71,6 +71,7 @@ router.get('/login', verifyToken, async (req, res) => {
             const { userId } = req.user;
             const { password } = await User.findByPk(userId);
             const isSame1 = await bcrypt.compare(inputtedPassword, password);
+            
             if (isSame1) {
                 return res.status(200).json({
                     success: true,
@@ -109,7 +110,7 @@ router.get('/mail', async (req, res, next) => {
         for (let i = 0; i < 10; i++) {
             password += str[Math.floor(Math.random() * str.length)];
         }
-        console.log(password);
+
         const mailOptions = {
             from: 'dsmplanb@gmail.com',
             to: req.query.email,
