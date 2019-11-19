@@ -60,7 +60,6 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                 offset,
                 limit,
             });
-            console.log('1');
         } else if (search) {
             posts = await DealPost.findAll({
                 where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}},
@@ -68,7 +67,6 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                 offset,
                 limit,
             });
-            console.log('2');
         } else if (category) {
             posts = await DealPost.findAll({
                 where : {category : {[Op.like] : `${decodeURI(category)}%`}},
@@ -76,15 +74,12 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
                 offset,
                 limit,
             });
-            console.log('3');
         } else {
             posts = await DealPost.findAll({
                 order : [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
-            console.log('4');
-            console.log(offset, limit);
         }
 
         posts.forEach(post => {
@@ -98,7 +93,6 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
             });
         });
 
-        
         return res.status(200).json({
             list,
             success : true,
