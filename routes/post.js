@@ -36,24 +36,24 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
 });
 
 router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) => {
-    const img = req.file.location;
-    const {title, content, category} = req.body;
-    const price = req.body.price;
-    const {email} = req.user;
     try {
-        const {id, nick} = await User.findOne({
-            where : {email},
-        });
+        const { userId } = req.user;
+        const { title, content, category, price } = req.body;
+        const img = req.file.location;
+        const flag = Number(price.split('/')[0]);
+        const {nick} = await User.findByPk(userId);
+
         await RentPost.create({
             author : nick,
             img,
             title,
             content,
-            price,
             category,
-            userId : id,
+            userId,
+            price : flag ? `1시간 당 ${Number(price.split('/')[1]).toLocaleString()}원` : `1회 당 ${Number(price.split('/')[1]).toLocaleString()}원`,
             possible_time : req.body.possible_time ? req.body.possible_time : null,
         });
+        
         return res.status(200).json({
             message : 7,
         });
