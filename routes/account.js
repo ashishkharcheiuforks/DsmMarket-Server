@@ -76,7 +76,7 @@ router.patch('/password', verifyToken, async (req, res, next) => {
 
 router.patch('/nick', verifyToken, async (req, res, next) => {
     try {
-        const { email } = req.user;
+        const { userId, email } = req.user;
         const { nick } = req.body;
         const exNick = await User.findOne({ where: { nick } });
 
@@ -89,13 +89,13 @@ router.patch('/nick', verifyToken, async (req, res, next) => {
             await DealPost.update({
                 author: nick,
             }, {
-                where: { author: exNick },
+                where: { userId },
             });
 
             await RentPost.update({
                 author: nick,
             }, {
-                where: { author: exNick },
+                where: { userId },
             });
 
             await Comment.update({
