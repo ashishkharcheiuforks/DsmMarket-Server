@@ -76,6 +76,8 @@ router.get('/', verifyToken, async (req, res, next) => {
 
         return res.status(200).json({
             list,
+            success : true,
+            message : 'refer success',
         });
     } catch (err) {
         console.log(err);
@@ -94,10 +96,13 @@ router.get('/join/:roomId', verifyToken, async (req, res, next) => {
         if (postId) {
             return res.status(200).json({
                 email,
+                success : true,
+                message : 'check success',
             });
         } else {
             return res.status(410).json({
-                message: '삭제된 게시물',
+                success : false,
+                message : 'non-existent post',
             });
         }
     } catch (err) {
