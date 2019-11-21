@@ -133,6 +133,8 @@ router.get('/chatLog', verifyToken, async (req, res, next) => {
 
         return res.status(200).json({
             list,
+            success : true,
+            message : 'refer success',
         });
     } catch (err) {
         console.error(err);
