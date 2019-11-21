@@ -76,8 +76,8 @@ router.get('/', verifyToken, async (req, res, next) => {
 
         return res.status(200).json({
             list,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.log(err);
@@ -86,23 +86,21 @@ router.get('/', verifyToken, async (req, res, next) => {
 });
 
 router.get('/join/:roomId', verifyToken, async (req, res, next) => {
-    const { roomId } = req.params;
-    const { email } = req.user;
     try {
-        const { postId } = await Room.findOne({
-            where: { roomId },
-        });
+        const { roomId } = req.params;
+        const { email } = req.user;
+        const { postId } = await Room.findByPk(roomId);
 
         if (postId) {
             return res.status(200).json({
                 email,
-                success : true,
-                message : 'check success',
+                success: true,
+                message: 'check success',
             });
         } else {
             return res.status(410).json({
-                success : false,
-                message : 'non-existent post',
+                success: false,
+                message: 'non-existent post',
             });
         }
     } catch (err) {
@@ -112,15 +110,10 @@ router.get('/join/:roomId', verifyToken, async (req, res, next) => {
 });
 
 router.get('/chatLog', verifyToken, async (req, res, next) => {
-    const { roomId, count } = req.query;
-    const { email } = req.user;
     try {
-        const logs = await ChatLog.findAll({
-            where: { roomId },
-            offset: 20 * count,
-            limit: 20,
-            order: [['createdAt', 'DESC']],
-        });
+        const { roomId, count } = req.query;
+        const { email } = req.user;
+        const logs = await ChatLog.findByPk(roomId, { offset: 20 * count, limit: 20, order: [['createdAt', 'DESC']] });
         const list = [];
 
         logs.forEach(log => {
@@ -133,8 +126,8 @@ router.get('/chatLog', verifyToken, async (req, res, next) => {
 
         return res.status(200).json({
             list,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.error(err);
