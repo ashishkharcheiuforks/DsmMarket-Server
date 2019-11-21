@@ -1,49 +1,49 @@
 const express = require('express');
-const {verifyToken} = require('./middlewares');
-const {User, DealPost, RentPost, Room, ChatLog, Sequelize : {Op}} = require('../models');
+const { verifyToken } = require('./middlewares');
+const { User, DealPost, RentPost, Room, ChatLog, Sequelize: { Op } } = require('../models');
 
 const router = express.Router();
 
 router.post('/', verifyToken, async (req, res, next) => {
-    const {postId, type} = req.body;
-    const user1 = req.user.email;
     try {
-        const post = Number(type) ? await RentPost.findOne({
-            where: { id: postId },
-        }) : await DealPost.findOne({
-            where : { id :postId },
-        });
-        
+        const { postId, type } = req.body;
+        const user1 = req.user.email;
+        const post = Number(type) ? await RentPost.findByPk(postId) : DealPost.findByPk(postId);
+
         if (post) {
             const room = await Room.findOne({
-                where : {[Op.and] : [{postId}, {type}, {user1}]},
+                where: { postId, type, user1 },
             });
+
             if (room) {
                 return res.status(200).json({
-                    roomId : room.roomId,
+                    roomId: room.id,
+                    success: true,
+                    message: 'existent room',
                 });
             } else {
                 const { img, author } = post;
-
-                const user2 = await User.findOne({
+                const { email } = await User.findOne({
                     where: { nick: author },
                 });
-
                 const { roomId } = await Room.create({
                     postId,
                     type,
-                    picture: img.split('\n')[0],
                     user1,
-                    user2: user2.email,
+                    user2: email,
+                    picture: img.split('\n')[0],
                 });
 
                 return res.status(200).json({
                     roomId,
+                    success: true,
+                    message: 'make room success',
                 });
             }
         } else {
-            return res.status(401).json({
-                errorCode : 11,
+            return res.status(410).json({
+                success: false,
+                message: 'non-existent post',
             });
         }
     } catch (err) {
@@ -54,23 +54,23 @@ router.post('/', verifyToken, async (req, res, next) => {
 
 router.get('/', verifyToken, async (req, res, next) => {
     try {
-        const {email} = req.user;
+        const { email } = req.user;
         const rooms = await Room.findAll({
-            where : {[Op.or] : {user1 : email, user2 : email}},
+            where: { [Op.or]: { user1: email, user2: email } },
         });
         const list = [];
 
         for (const room of rooms) {
             const opponent = room.user1 === email ? await User.findOne({
-                where : {email : room.user2},
+                where: { email: room.user2 },
             }) : await User.findOne({
-                where : {email : room.user1},
+                where: { email: room.user1 },
             });
 
             list.push({
-                roomName : opponent.nick,
-                picture : room.picture,
-                roomId : room.roomId,
+                roomName: opponent.nick,
+                picture: room.picture,
+                roomId: room.roomId,
             });
         }
 
@@ -84,11 +84,11 @@ router.get('/', verifyToken, async (req, res, next) => {
 });
 
 router.get('/join/:roomId', verifyToken, async (req, res, next) => {
-    const {roomId} = req.params;
-    const {email} = req.user;
+    const { roomId } = req.params;
+    const { email } = req.user;
     try {
-        const {postId} = await Room.findOne({
-            where : {roomId},
+        const { postId } = await Room.findOne({
+            where: { roomId },
         });
 
         if (postId) {
@@ -97,7 +97,7 @@ router.get('/join/:roomId', verifyToken, async (req, res, next) => {
             });
         } else {
             return res.status(410).json({
-                message : '삭제된 게시물',
+                message: '삭제된 게시물',
             });
         }
     } catch (err) {
@@ -107,22 +107,22 @@ router.get('/join/:roomId', verifyToken, async (req, res, next) => {
 });
 
 router.get('/chatLog', verifyToken, async (req, res, next) => {
-    const {roomId, count} = req.query;
-    const {email} = req.user;
+    const { roomId, count } = req.query;
+    const { email } = req.user;
     try {
         const logs = await ChatLog.findAll({
-            where : {roomId},
-            offset : 20 * count,
-            limit : 20,
-            order : [['createdAt', 'DESC']],
+            where: { roomId },
+            offset: 20 * count,
+            limit: 20,
+            order: [['createdAt', 'DESC']],
         });
         const list = [];
 
         logs.forEach(log => {
             list.push({
-                me : log.email === email ? true : false,
-                message : log.message,
-                createdAt : log.createdAt,
+                me: log.email === email ? true : false,
+                message: log.message,
+                createdAt: log.createdAt,
             });
         });
 
