@@ -36,8 +36,11 @@ router.get('/user/nick', verifyToken, async (req, res) => {
     try {
         const {userId} = req.user;
         const {nick} = await User.findByPk(userId);
+
         return res.status(200).json({
             nick,
+            success : true,
+            message : 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -143,13 +146,13 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
 
         posts.forEach(post => {
             const {id, title, img, createdAt, price} = post;
-            const flag = Number(price.split('/')[0]);
+
             list.push({
-                title,
                 img,
+                title,
+                price,
                 createdAt,
                 postId : id,
-                price : flag ? `1시간 당 ${Number(price.split('/')[1]).toLocaleString()}원` : `1회 당 ${Number(price.split('/')[1]).toLocaleString()}원`,
             });
         });
 
@@ -548,6 +551,7 @@ router.get('/user/list/rent', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.get('/deal/img', verifyToken, async (req, res, next) => {
     try {
         const {postId} = req.query;
@@ -564,11 +568,13 @@ router.get('/deal/img', verifyToken, async (req, res, next) => {
 
             return res.status(200).json({
                 list,
-                message : 9,
+                success : true,
+                message : 'refer success',
             });
         } else {
             return res.status(410).json({
-                errorCode : 11,
+                success : false,
+                message : 'non-existent post',
             });
         }
     } catch (err) {
@@ -576,20 +582,22 @@ router.get('/deal/img', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.get('/rent/img', verifyToken, async (req, res, next) => {
-    const id = req.query.postId;
     try {
-        const {img} = await RentPost.findOne({
-            where : {id},
-        });
+        const {postId} = req.query;
+        const {img} = await RentPost.findByPk(postId);
+
         if (img) {
             return res.status(200).json({
                 img,
-                message : 9,
+                success : true,
+                message : 'refer success',
             });
         } else {
             return res.status(410).json({
-                errorCode : 11,
+                success : false,
+                message : 'non-existent post',
             });
         }
     } catch (err) {
@@ -597,6 +605,7 @@ router.get('/rent/img', verifyToken, async (req, res, next) => {
         return next(err);
     }
 });
+
 router.get('/category', verifyToken, (req, res) => {
     return res.status(200).json({
         category: [
@@ -660,6 +669,9 @@ router.get('/category', verifyToken, (req, res) => {
                 "body": ["기타"]
             }
         ],
+        success : true,
+        message : 'refer success',
     });
 });
+
 module.exports = router;
