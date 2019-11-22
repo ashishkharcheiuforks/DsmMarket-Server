@@ -113,7 +113,12 @@ router.get('/chatLog', verifyToken, async (req, res, next) => {
     try {
         const { roomId, count } = req.query;
         const { email } = req.user;
-        const logs = await ChatLog.findByPk(roomId, { offset: 20 * count, limit: 20, order: [['createdAt', 'DESC']] });
+        const logs = await ChatLog.findAll({
+            where: { roomId },
+            offset: 20 * count,
+            limit: 20,
+            order: [['createdAt', 'DESC']],
+        });
         const list = [];
 
         logs.forEach(log => {
