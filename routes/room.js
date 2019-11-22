@@ -8,7 +8,7 @@ router.post('/', verifyToken, async (req, res, next) => {
     try {
         const { postId, type } = req.body;
         const user1 = req.user.email;
-        const post = Number(type) ? await RentPost.findByPk(postId) : DealPost.findByPk(postId);
+        const post = Number(type) ? await RentPost.findByPk(postId) : await DealPost.findByPk(postId);
 
         if (post) {
             const room = await Room.findOne({
