@@ -12,7 +12,7 @@ router.post('/', verifyToken, async (req, res, next) => {
 
         if (post) {
             const room = await Room.findOne({
-                where: { postId, type, user1 },
+                where: { postId, type, [Op.or]: [{ user1 }, { user2: user1 }] },
             });
 
             if (room) {
