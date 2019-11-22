@@ -89,10 +89,10 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
             const {id, title, img, createdAt, price} = post;
             list.push({
                 title,
+                price,
                 createdAt,
                 postId : id,
                 img : img.split('\n')[0],
-                price : `${price.toLocaleString()}원`,
             });
         });
 
@@ -201,10 +201,10 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     img,
                     author,
                     title,
+                    price,
                     content,
                     createdAt,
                     category,
-                    price,
                     possible_time : possible_time ? possible_time : '',
                     comments : comments.length,
                     interest : isInterest ? true : false,
@@ -253,10 +253,10 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     img,
                     author,
                     title,
+                    price,
                     content,
                     createdAt,
                     category,
-                    price : `${price}원`,
                     comments : comments.length,
                     interest : isInterest ? true : false,
                     isMe : post.userId === userId ? true : false,
