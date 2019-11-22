@@ -17,7 +17,7 @@ router.post('/', verifyToken, async (req, res, next) => {
 
             if (room) {
                 return res.status(200).json({
-                    roomId: room.id,
+                    roomId: room.roomId,
                     success: true,
                     message: 'existent room',
                 });
