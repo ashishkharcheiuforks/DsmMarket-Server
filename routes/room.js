@@ -22,7 +22,7 @@ router.post('/', verifyToken, async (req, res, next) => {
                     message: 'existent room',
                 });
             } else {
-                const { img, author } = post;
+                console.log(post.author);
                 const { email } = await User.findOne({
                     where: { nick: author },
                 });
