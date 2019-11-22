@@ -4,7 +4,7 @@
   "description": "대덕소프트웨어 마이스터고등학교 교내 장터",
   "main": "index.js",
   "scripts": {
-    "start": "node app.jss"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
