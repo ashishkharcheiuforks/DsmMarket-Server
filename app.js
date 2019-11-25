@@ -1,9 +1,9 @@
 const morgan = require('morgan');
-const {sequelize} = require('./models');
+const { sequelize } = require('./models');
 const express = require('express');
 const passport = require('passport');
 const http = require('http');
-const {ChatLog} = require('./models');
+const { ChatLog } = require('./models');
 
 const testRouter = require('./routes/test');
 const accountRouter = require('./routes/account');
@@ -24,7 +24,7 @@ app.set('port', process.env.PORT | 8001);
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
-app.use(express.urlencoded({extended : false}));
+app.use(express.urlencoded({ extended: false }));
 
 app.use('/test', testRouter);
 app.use('/account', accountRouter);
@@ -63,9 +63,9 @@ io.sockets.on('connection', (socket) => {
     socket.on('sendMessage', async (data) => {
         try {
             await ChatLog.create({
-                message : data.msg,
-                email : socket.email,
-                roomId : socket.room,
+                message: data.msg,
+                email: socket.email,
+                roomId: socket.room,
             });
             socket.broadcast.to(socket.room).emit('broadcastMessage', data);
             console.log(`[sendMessage] ${socket.email}(${socket.id}) sent ${data.msg}`);
