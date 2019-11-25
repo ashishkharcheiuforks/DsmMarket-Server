@@ -9,9 +9,9 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
     try {
         const { title, content, category, price } = req.body;
         const { userId } = req.user;
-        const {nick} = await User.findByPk(userId);
+        const { nick } = await User.findByPk(userId);
         let urls = '';
-        
+
         req.files.forEach(img => {
             urls += img.location + '\n';
         });
@@ -27,7 +27,7 @@ router.post('/deal', verifyToken, upload.array('img'), async (req, res, next) =>
         });
 
         return res.status(200).json({
-            success : true,
+            success: true,
             message: 'posting success',
         });
     } catch (err) {
@@ -56,7 +56,7 @@ router.post('/rent', verifyToken, upload.single('img'), async (req, res, next) =
         });
 
         return res.status(200).json({
-            success : true,
+            success: true,
             message: 'posting success',
         });
     } catch (err) {
@@ -115,7 +115,7 @@ router.patch('/rent', verifyToken, async (req, res, next) => {
 
 router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
     try {
-        const {postId} = req.params;
+        const { postId } = req.params;
         const { img } = await DealPost.findByPk(postId);
 
         img.split('\n').forEach(url => {
@@ -128,11 +128,11 @@ router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
         });
 
         const { roomId } = await Room.findOne({
-            where: { postId, type : 0 },
+            where: { postId, type: 0 },
         });
 
         await Room.destroy({
-            where: { postId, type : 0 },
+            where: { postId, type: 0 },
         });
 
         await ChatLog.destroy({
@@ -140,7 +140,7 @@ router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
         });
 
         await Interest.destroy({
-            where: { postId, type : 0 },
+            where: { postId, type: 0 },
         });
 
         await DealPost.destroy({
@@ -159,7 +159,7 @@ router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
 
 router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
     try {
-        const {postId} = req.params;
+        const { postId } = req.params;
         const { img } = await RentPost.findByPk(postId);
 
         deleteFile({
@@ -168,11 +168,11 @@ router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
         });
 
         const { roomId } = await Room.findOne({
-            where: { postId, type : 1 },
+            where: { postId, type: 1 },
         });
 
         await Room.destroy({
-            where: { postId, type : 1 },
+            where: { postId, type: 1 },
         });
 
         await ChatLog.destroy({
@@ -180,7 +180,7 @@ router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
         });
 
         await Interest.destroy({
-            where: { postId, type : 1 },
+            where: { postId, type: 1 },
         });
 
         await RentPost.destroy({
@@ -188,7 +188,7 @@ router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
         });
 
         return res.status(200).json({
-            success : true,
+            success: true,
             message: 'delete success',
         });
     } catch (err) {
@@ -276,7 +276,8 @@ router.post('/comment', verifyToken, async (req, res, next) => {
             }
 
             return res.status(200).json({
-                message: 12,
+                success: true,
+                message: 'non-existent post',
             });
         } else {
             return res.status(410).json({

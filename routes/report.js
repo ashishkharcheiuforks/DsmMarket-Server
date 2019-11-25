@@ -1,21 +1,21 @@
 const express = require('express');
-const {verifyToken} = require('./middlewares');
+const { verifyToken } = require('./middlewares');
 const nodemailer = require('nodemailer');
 const moment = require('moment');
 require('dotenv').config();
 
 const router = express.Router();
 const transporter = nodemailer.createTransport({
-    service : 'gmail',
-    auth : {
-        user : 'dsmplanb@gmail.com',
-        pass : process.env.GMAIL_PASSWORD,
+    service: 'gmail',
+    auth: {
+        user: 'dsmplanb@gmail.com',
+        pass: process.env.GMAIL_PASSWORD,
     },
 });
 
 router.post('/post', verifyToken, async (req, res, next) => {
     try {
-        const {email} = req.user;
+        const { email } = req.user;
         const { postId, type, reason } = req.body;
         const mailOptions = {
             from: 'dsmplanb@gmail.com',
@@ -26,12 +26,12 @@ router.post('/post', verifyToken, async (req, res, next) => {
             게시물 ID : ${postId}
             신고사유 : ${reason}`,
         };
-        
+
         await transporter.sendMail(mailOptions);
-        
+
         return res.status(200).json({
             success: true,
-            message : 'report success',
+            message: 'report success',
         });
     } catch (err) {
         console.error(err);
@@ -41,7 +41,7 @@ router.post('/post', verifyToken, async (req, res, next) => {
 
 router.post('/comment', verifyToken, async (req, res, next) => {
     try {
-        const {email} = req.user;
+        const { email } = req.user;
         const { postId, type, nick, reason } = req.body;
         const mailOptions = {
             from: 'dsmplanb@gmail.com',
@@ -53,12 +53,12 @@ router.post('/comment', verifyToken, async (req, res, next) => {
             댓글 작성자 : ${nick}
             사유 : ${reason}`,
         };
-        
+
         await transporter.sendMail(mailOptions);
-        
+
         return res.status(200).json({
             success: true,
-            message : 'report success',
+            message: 'report success',
         });
     } catch (err) {
         console.error(err);

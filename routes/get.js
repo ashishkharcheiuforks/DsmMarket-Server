@@ -1,8 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const {verifyToken} = require('./middlewares');
+const { verifyToken } = require('./middlewares');
 const axios = require('axios');
-const {User, DealPost, RentPost, Comment, Interest, sequelize, Sequelize : {Op}} = require('../models');
+const { User, DealPost, RentPost, Comment, Interest, sequelize, Sequelize: { Op } } = require('../models');
 
 const router = express.Router();
 
@@ -10,37 +10,37 @@ router.get('/token', (req, res) => {
     try {
         const user = jwt.verify(req.headers.authorization, process.env.JWT_SECRET_KEY);
         const access_token = jwt.sign({
-            email : user.email,
-            userId : user.userId,
+            email: user.email,
+            userId: user.userId,
         },
-        process.env.JWT_SECRET_KEY,
-        {
-            expiresIn : '5m',
-        });
+            process.env.JWT_SECRET_KEY,
+            {
+                expiresIn: '5m',
+            });
 
         return res.status(200).json({
             access_token,
-            success : true,
-            message : 'refresh success',
+            success: true,
+            message: 'refresh success',
         });
     } catch (err) {
         return res.status(401).json({
-            refresh : true,
-            success : false,
-            message : 'refresh token is expired',
+            refresh: true,
+            success: false,
+            message: 'refresh token is expired',
         });
     }
 });
 
 router.get('/user/nick', verifyToken, async (req, res) => {
     try {
-        const {userId} = req.user;
-        const {nick} = await User.findByPk(userId);
+        const { userId } = req.user;
+        const { nick } = await User.findByPk(userId);
 
         return res.status(200).json({
             nick,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -50,7 +50,7 @@ router.get('/user/nick', verifyToken, async (req, res) => {
 
 router.get('/list/deal', verifyToken, async (req, res, next) => {
     try {
-        const {page, pagesize, search, category} = req.query;
+        const { page, pagesize, search, category } = req.query;
         const offset = Number(page) > 0 ? Number(pagesize) * Number(page) : 0;
         const limit = Number(page) > 0 ? Number(pagesize) : 20;
         const list = [];
@@ -58,48 +58,48 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
 
         if (category && search) {
             posts = await DealPost.findAll({
-                where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}, category : {[Op.like] : `${decodeURI(category)}%`}},
-                order : [['createdAt', 'DESC']],
+                where: { title: { [Op.like]: `%${decodeURI(search)}%` }, content: { [Op.like]: `%${decodeURI(search)}%` }, category: { [Op.like]: `${decodeURI(category)}%` } },
+                order: [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (search) {
             posts = await DealPost.findAll({
-                where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}},
-                order : [['createdAt', 'DESC']],
+                where: { title: { [Op.like]: `%${decodeURI(search)}%` }, content: { [Op.like]: `%${decodeURI(search)}%` } },
+                order: [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (category) {
             posts = await DealPost.findAll({
-                where : {category : {[Op.like] : `${decodeURI(category)}%`}},
-                order : [['createdAt', 'DESC']],
+                where: { category: { [Op.like]: `${decodeURI(category)}%` } },
+                order: [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else {
             posts = await DealPost.findAll({
-                order : [['createdAt', 'DESC']],
+                order: [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         }
 
         posts.forEach(post => {
-            const {id, title, img, createdAt, price} = post;
+            const { id, title, img, createdAt, price } = post;
             list.push({
                 title,
                 price,
                 createdAt,
-                postId : id,
-                img : img.split('\n')[0],
+                postId: id,
+                img: img.split('\n')[0],
             });
         });
 
         return res.status(200).json({
             list,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -109,7 +109,7 @@ router.get('/list/deal', verifyToken, async (req, res, next) => {
 
 router.get('/list/rent', verifyToken, async (req, res, next) => {
     try {
-        const {page, pagesize, search, category} = req.query;
+        const { page, pagesize, search, category } = req.query;
         const offset = Number(page) > 0 ? Number(pagesize) * Number(page) : 0;
         const limit = Number(page) > 0 ? Number(pagesize) : 20;
         const list = [];
@@ -117,50 +117,50 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
 
         if (category && search) {
             posts = await RentPost.findAll({
-                where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}, category : {[Op.like] : `${decodeURI(category)}%`}},
-                order : [['createdAt', 'DESC']],
+                where: { title: { [Op.like]: `%${decodeURI(search)}%` }, content: { [Op.like]: `%${decodeURI(search)}%` }, category: { [Op.like]: `${decodeURI(category)}%` } },
+                order: [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (search) {
             posts = await RentPost.findAll({
-                where : {title : {[Op.like] : `%${decodeURI(search)}%`}, content : {[Op.like] : `%${decodeURI(search)}%`}},
-                order : [['createdAt', 'DESC']],
+                where: { title: { [Op.like]: `%${decodeURI(search)}%` }, content: { [Op.like]: `%${decodeURI(search)}%` } },
+                order: [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else if (category) {
             posts = await RentPost.findAll({
-                where : {category : {[Op.like] : `${decodeURI(category)}%`}},
-                order : [['createdAt', 'DESC']],
+                where: { category: { [Op.like]: `${decodeURI(category)}%` } },
+                order: [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         } else {
             posts = await RentPost.findAll({
-                order : [['createdAt', 'DESC']],
+                order: [['createdAt', 'DESC']],
                 offset,
                 limit,
             });
         }
 
         posts.forEach(post => {
-            const {id, title, img, createdAt, price} = post;
+            const { id, title, img, createdAt, price } = post;
 
             list.push({
                 img,
                 title,
                 price,
                 createdAt,
-                postId : id,
+                postId: id,
             });
         });
 
-        
+
         return res.status(200).json({
             list,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -170,30 +170,30 @@ router.get('/list/rent', verifyToken, async (req, res, next) => {
 
 router.get('/post', verifyToken, async (req, res, next) => {
     try {
-        const {postId, type} = req.query;
+        const { postId, type } = req.query;
 
         if (Number(type)) {
             const post = await RentPost.findByPk(postId);
 
             if (post) {
-                const {userId} = req.user;
-                const {id, img, author, title, content, createdAt, possible_time, price, category} = post;
+                const { userId } = req.user;
+                const { id, img, author, title, content, createdAt, possible_time, price, category } = post;
                 const user = await User.findByPk(userId);
                 const comments = await Comment.findAll({
-                    where : {rentPostId : postId},
+                    where: { rentPostId: postId },
                 });
                 const isInterest = await Interest.findOne({
-                    where : {userId, postId},
+                    where: { userId, postId },
                 });
                 const rentLogs = JSON.parse(user.rentLogs);
-                
+
                 rentLogs.logs.unshift(Number(postId));
                 rentLogs.logs.pop();
 
                 await User.update({
-                    rentLogs : JSON.stringify(rentLogs),
+                    rentLogs: JSON.stringify(rentLogs),
                 }, {
-                    where : {id : userId},
+                    where: { id: userId },
                 });
 
                 return res.status(200).json({
@@ -205,31 +205,31 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content,
                     createdAt,
                     category,
-                    possible_time : possible_time ? possible_time : '',
-                    comments : comments.length,
-                    interest : isInterest ? true : false,
-                    isMe : post.userId === userId ? true : false,
-                    success : true,
-                    message : 'refer success',
+                    possible_time: possible_time ? possible_time : '',
+                    comments: comments.length,
+                    interest: isInterest ? true : false,
+                    isMe: post.userId === userId ? true : false,
+                    success: true,
+                    message: 'refer success',
                 });
             } else {
                 return res.status(410).json({
-                    success : false,
-                    message : 'non-existent post',
+                    success: false,
+                    message: 'non-existent post',
                 });
             }
         } else {
             const post = await DealPost.findByPk(postId);
 
             if (post) {
-                const {userId} = req.user;
-                const {id, author, title, content, createdAt, price, category} = post;
+                const { userId } = req.user;
+                const { id, author, title, content, createdAt, price, category } = post;
                 const user = await User.findByPk(userId);
                 const comments = await Comment.findAll({
-                    where : {dealPostId : postId},
+                    where: { dealPostId: postId },
                 });
                 const isInterest = await Interest.findOne({
-                    where : {userId, postId},
+                    where: { userId, postId },
                 });
                 const dealLogs = JSON.parse(user.dealLogs);
                 const img = [];
@@ -243,9 +243,9 @@ router.get('/post', verifyToken, async (req, res, next) => {
                 });
 
                 await User.update({
-                    dealLogs : JSON.stringify(dealLogs),
+                    dealLogs: JSON.stringify(dealLogs),
                 }, {
-                    where : {id : userId},
+                    where: { id: userId },
                 });
 
                 return res.status(200).json({
@@ -257,16 +257,16 @@ router.get('/post', verifyToken, async (req, res, next) => {
                     content,
                     createdAt,
                     category,
-                    comments : comments.length,
-                    interest : isInterest ? true : false,
-                    isMe : post.userId === userId ? true : false,
-                    success : true,
-                    message : 'refer success',
+                    comments: comments.length,
+                    interest: isInterest ? true : false,
+                    isMe: post.userId === userId ? true : false,
+                    success: true,
+                    message: 'refer success',
                 });
             } else {
                 return res.status(410).json({
-                    success : false,
-                    message : 'non-existent post',
+                    success: false,
+                    message: 'non-existent post',
                 });
             }
         }
@@ -279,20 +279,20 @@ router.get('/post', verifyToken, async (req, res, next) => {
 router.get('/comment', verifyToken, async (req, res, next) => {
     try {
         const isMe = req.user.email;
-        const {postId, type} = req.query;
+        const { postId, type } = req.query;
         const isExist = Number(type) ? await RentPost.findByPk(postId) : await DealPost.findByPk(postId);
-        
+
         if (isExist) {
             if (Number(type)) {
                 const comments = await Comment.findAll({
-                    where : {rentPostId : postId},
-                    order : [['createdAt', 'DESC']],
+                    where: { rentPostId: postId },
+                    order: [['createdAt', 'DESC']],
                 });
                 const list = [];
 
                 comments.forEach(comment => {
-                    const {nick, content, createdAt} = comment;
-                    
+                    const { nick, content, createdAt } = comment;
+
                     list.push({
                         nick,
                         content,
@@ -302,37 +302,37 @@ router.get('/comment', verifyToken, async (req, res, next) => {
 
                 return res.status(200).json({
                     list,
-                    success : true,
-                    message : 'refer success',
+                    success: true,
+                    message: 'refer success',
                 });
             } else {
                 const comments = await Comment.findAll({
-                    where : {dealPostId : postId},
-                    order : [['createdAt', 'DESC']],
+                    where: { dealPostId: postId },
+                    order: [['createdAt', 'DESC']],
                 });
                 const list = [];
 
                 comments.forEach(comment => {
-                    const {email, nick, content, createdAt} = comment;
-                    
+                    const { email, nick, content, createdAt } = comment;
+
                     list.push({
                         nick,
                         content,
                         createdAt,
-                        isMe : email === isMe ? true : false,
+                        isMe: email === isMe ? true : false,
                     });
                 });
 
                 return res.status(200).json({
                     list,
-                    success : true,
-                    message : 'refer success',
+                    success: true,
+                    message: 'refer success',
                 });
             }
         } else {
             return res.status(410).json({
-                success : false,
-                message : 'non-existent post',
+                success: false,
+                message: 'non-existent post',
             });
         }
     } catch (err) {
@@ -343,13 +343,13 @@ router.get('/comment', verifyToken, async (req, res, next) => {
 
 router.get('/list/interest', verifyToken, async (req, res, next) => {
     try {
-        const {type} = req.query;
-        const {userId} = req.user;
+        const { type } = req.query;
+        const { userId } = req.user;
         const postIds = [];
         const list = [];
         const interests = await Interest.findAll({
-            where : {userId, type},
-            order : [['createdAt', 'DESC']],
+            where: { userId, type },
+            order: [['createdAt', 'DESC']],
         });
 
         if (Number(type)) {
@@ -358,19 +358,19 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
             });
 
             const posts = await RentPost.findAll({
-                where : {id : {[Op.in] : postIds}},
-                order : [['createdAt', 'DESC']],
+                where: { id: { [Op.in]: postIds } },
+                order: [['createdAt', 'DESC']],
             });
 
             posts.forEach(post => {
-                const {id, img, title, createdAt, price} = post;
+                const { id, img, title, createdAt, price } = post;
 
                 list.push({
                     img,
                     title,
                     price,
                     createdAt,
-                    postId : id,
+                    postId: id,
                 });
             });
         } else {
@@ -379,26 +379,26 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
             });
 
             const posts = await DealPost.findAll({
-                where : {id : {[Op.in] : postIds}},
-                order : [['createdAt', 'DESC']],
+                where: { id: { [Op.in]: postIds } },
+                order: [['createdAt', 'DESC']],
             });
 
             posts.forEach(post => {
-                const {id, img, title, createdAt, price} = post;
+                const { id, img, title, createdAt, price } = post;
 
                 list.push({
                     img,
                     title,
                     price,
                     createdAt,
-                    postId : id,
+                    postId: id,
                 });
             });
         }
         return res.status(200).json({
             list,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -407,46 +407,46 @@ router.get('/list/interest', verifyToken, async (req, res, next) => {
 });
 
 router.get('/list/related', verifyToken, async (req, res, next) => {
-    const {postId, type} = req.query;
+    const { postId, type } = req.query;
     try {
         const list = [];
         if (Number(type)) {
-            const {category} = await RentPost.findOne({
-                where : {id : Number(postId)},
+            const { category } = await RentPost.findOne({
+                where: { id: Number(postId) },
             });
             const posts = await RentPost.findAll({
-                where : {category, id : {[Op.ne] : Number(postId)}},
-                order : sequelize.random(),
-                limit : 6,
+                where: { category, id: { [Op.ne]: Number(postId) } },
+                order: sequelize.random(),
+                limit: 6,
             });
             posts.forEach(post => {
                 list.push({
-                    postId : post.id,
-                    title : post.title,
-                    img : post.img,
+                    postId: post.id,
+                    title: post.title,
+                    img: post.img,
                 });
             });
         } else {
-            const {category} = await DealPost.findOne({
-                where : {id : Number(postId)},
+            const { category } = await DealPost.findOne({
+                where: { id: Number(postId) },
             });
             const posts = await DealPost.findAll({
-                where : {category, id : {[Op.ne] : Number(postId)}},
-                order : sequelize.random(),
-                limit : 6,
+                where: { category, id: { [Op.ne]: Number(postId) } },
+                order: sequelize.random(),
+                limit: 6,
             });
             posts.forEach(post => {
                 list.push({
-                    postId : post.id,
-                    title : post.title,
-                    img : post.img.split('\n')[0],
+                    postId: post.id,
+                    title: post.title,
+                    img: post.img.split('\n')[0],
                 });
             });
         }
         return res.status(200).json({
             list,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -455,12 +455,12 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
 });
 
 router.get('/list/recommend', verifyToken, async (req, res, next) => {
-    const {userId} = req.user;
+    const { userId } = req.user;
     try {
         const posts = await axios.get('http://18.223.169.217/recommend', {
-            params : {
+            params: {
                 userId,
-                type : 0,
+                type: 0,
             }
         });
         const list = [];
@@ -468,7 +468,7 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
         for (const postId of posts.data.list) {
             if (Number(postId) !== 0) {
                 const { id, title, img } = await DealPost.findByPk(postId);
-                
+
                 list.push({
                     postId: id,
                     title,
@@ -479,8 +479,8 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
 
         return res.status(200).json({
             list,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -490,29 +490,29 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
 
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     try {
-        const {userId} = req.user;
+        const { userId } = req.user;
         const posts = await DealPost.findAll({
-            where : {userId},
-            order : [['createdAt', 'DESC']],
+            where: { userId },
+            order: [['createdAt', 'DESC']],
         });
         const list = [];
 
         posts.forEach(post => {
-            const {id, img, title, createdAt, price} = post;
-            
+            const { id, img, title, createdAt, price } = post;
+
             list.push({
                 title,
                 price,
                 createdAt,
-                postId : id,
-                img : img.split('\n')[0],
+                postId: id,
+                img: img.split('\n')[0],
             });
         });
 
         return res.status(200).json({
             list,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -522,29 +522,29 @@ router.get('/user/list/deal', verifyToken, async (req, res, next) => {
 
 router.get('/user/list/rent', verifyToken, async (req, res, next) => {
     try {
-        const {userId} = req.user;
+        const { userId } = req.user;
         const posts = await RentPost.findAll({
-            where : {userId},
-            order : [['createdAt', 'DESC']],
+            where: { userId },
+            order: [['createdAt', 'DESC']],
         });
         const list = [];
 
         posts.forEach(post => {
-            const {id, img, title, createdAt, price} = post;
+            const { id, img, title, createdAt, price } = post;
 
             list.push({
                 img,
                 title,
                 price,
                 createdAt,
-                postId : id,
+                postId: id,
             });
         });
 
         return res.status(200).json({
             list,
-            success : true,
-            message : 'refer success',
+            success: true,
+            message: 'refer success',
         });
     } catch (err) {
         console.error(err);
@@ -554,8 +554,8 @@ router.get('/user/list/rent', verifyToken, async (req, res, next) => {
 
 router.get('/deal/img', verifyToken, async (req, res, next) => {
     try {
-        const {postId} = req.query;
-        const {img} = await DealPost.findByPk(postId);
+        const { postId } = req.query;
+        const { img } = await DealPost.findByPk(postId);
 
         if (img) {
             const list = [];
@@ -568,13 +568,13 @@ router.get('/deal/img', verifyToken, async (req, res, next) => {
 
             return res.status(200).json({
                 list,
-                success : true,
-                message : 'refer success',
+                success: true,
+                message: 'refer success',
             });
         } else {
             return res.status(410).json({
-                success : false,
-                message : 'non-existent post',
+                success: false,
+                message: 'non-existent post',
             });
         }
     } catch (err) {
@@ -585,19 +585,19 @@ router.get('/deal/img', verifyToken, async (req, res, next) => {
 
 router.get('/rent/img', verifyToken, async (req, res, next) => {
     try {
-        const {postId} = req.query;
-        const {img} = await RentPost.findByPk(postId);
+        const { postId } = req.query;
+        const { img } = await RentPost.findByPk(postId);
 
         if (img) {
             return res.status(200).json({
                 img,
-                success : true,
-                message : 'refer success',
+                success: true,
+                message: 'refer success',
             });
         } else {
             return res.status(410).json({
-                success : false,
-                message : 'non-existent post',
+                success: false,
+                message: 'non-existent post',
             });
         }
     } catch (err) {
@@ -669,8 +669,8 @@ router.get('/category', verifyToken, (req, res) => {
                 "body": ["기타"]
             }
         ],
-        success : true,
-        message : 'refer success',
+        success: true,
+        message: 'refer success',
     });
 });
 
