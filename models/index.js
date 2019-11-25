@@ -4,11 +4,11 @@ const db = {};
 
 const sequelize = new Sequelize(
     config.database, config.username, config.password, {
-        host : config.host,
-        dialect : config.dialect,
-        logging : config.logging,
-        timezone: '+09:00',
-    },
+    host: config.host,
+    dialect: config.dialect,
+    logging: config.logging,
+    timezone: '+09:00',
+},
 );
 
 db.sequelize = sequelize;
