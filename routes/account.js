@@ -31,6 +31,7 @@ router.post('/join', async (req, res, next) => {
                 logs: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             });
             const rentLogs = dealLogs;
+            
             await User.create({
                 email,
                 tempPassword,

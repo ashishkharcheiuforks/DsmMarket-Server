@@ -106,7 +106,7 @@ router.get('/mail', async (req, res, next) => {
         const { email } = req.query;
         const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
         let password = ''
-
+        
         for (let i = 0; i < 10; i++) {
             password += str[Math.floor(Math.random() * str.length)];
         }
