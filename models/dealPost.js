@@ -1,9 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('dealPost', {
-        author: {
-            type: DataTypes.STRING(40),
-            allowNull: false,
-        },
         img: {
             type: DataTypes.TEXT,
             allowNull: false,
