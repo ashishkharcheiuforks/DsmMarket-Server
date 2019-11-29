@@ -1,5 +1,4 @@
 const express = require('express');
-const passport = require('passport');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
@@ -16,63 +15,63 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-router.post('/login', (req, res, next) => {
-    passport.authenticate('local', { session: false }, (authError, user) => {
-        if (authError) {
-            console.error(authError);
-            return next(authError);
-        }
+router.post('/login', async (req, res, next) => {
+    try {
+        const {email, password} = req.body;
+        const user = await User.findOne({ where: { email }, attributes: ['password', 'tempPassword'] });
 
-        if (!user) {
-            return res.status(403).json({
-                success: false,
-                message: 'incorrect email or password',
-            });
-        }
+        if (user) {
+            const isTruePassword = await bcrypt.compare(password, user.password);
+            const isTrueTempPassword = await bcrypt.compare(password, user.tempPassword);
 
-        return req.login(user, { session: false }, (loginError) => {
-            if (loginError) {
-                console.error(loginError);
-                next(loginError);
+            if (isTruePassword || isTrueTempPassword) {
+                const access_token = jwt.sign({
+                    email: user.email,
+                    userId: user.id,
+                },
+                    process.env.JWT_SECRET_KEY,
+                    {
+                        expiresIn: '20m',
+                    });
+                const refresh_token = jwt.sign({
+                    email: user.email,
+                    userId: user.id,
+                },
+                    process.env.JWT_SECRET_KEY,
+                    {
+                        expiresIn: '100m',
+                    });
+    
+                return res.status(200).json({
+                    access_token,
+                    refresh_token,
+                    nick: user.nick,
+                    message: 'login success',
+                });
             }
+        }
 
-            const access_token = jwt.sign({
-                email: user.email,
-                userId: user.id,
-            },
-                process.env.JWT_SECRET_KEY,
-                {
-                    expiresIn: '20m',
-                });
-            const refresh_token = jwt.sign({
-                email: user.email,
-                userId: user.id,
-            },
-                process.env.JWT_SECRET_KEY,
-                {
-                    expiresIn: '100m',
-                });
-
-            return res.status(200).json({
-                access_token,
-                refresh_token,
-                nick: user.nick,
-                message: 'login success',
-            });
+        return res.status(403).json({
+            success: false,
+            message: 'incorrect email or password',
         });
-    })(req, res, next);
+    } catch (error) {
+        console.error(error);
+        return next(error);
+    }
 });
 
 router.get('/login', verifyToken, async (req, res) => {
     try {
-        const inputtedPassword = req.query.password;
+        const { password } = req.query;
 
-        if (inputtedPassword) {
+        if (password) {
             const { userId } = req.user;
-            const { password } = await User.findByPk(userId);
-            const isSame1 = await bcrypt.compare(inputtedPassword, password);
+            const user = await User.findByPk(userId, { attributes: ['password', 'tempPassword'] });
+            const isTruePassword = await bcrypt.compare(password, user.password);
+            const isTrueTempPassword = await bcrypt.compare(password, user.tempPassword);
 
-            if (isSame1) {
+            if (isTruePassword || isTrueTempPassword) {
                 return res.status(200).json({
                     success: true,
                     message: 'login success',
@@ -84,14 +83,12 @@ router.get('/login', verifyToken, async (req, res) => {
                 });
             }
         } else {
-            const { email } = req.user;
-            const { nick } = await User.findOne({
-                where: { email },
-            });
+            const { userId } = req.user;
+            const { nick } = await User.findByPk(userId);
 
             return res.status(200).json({
-                success: true,
                 nick,
+                success: true,
                 message: 'login success',
             });
         }
@@ -121,11 +118,7 @@ router.get('/mail', async (req, res, next) => {
         };
         const tempPassword = await bcrypt.hash(password, 12);
 
-        await User.update({
-            tempPassword,
-        }, {
-            where: { email },
-        });
+        await User.update({ tempPassword }, { where: { email } });
 
         await transporter.sendMail(mailOptions);
 
