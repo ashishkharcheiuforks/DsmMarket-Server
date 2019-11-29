@@ -9,7 +9,6 @@ const router = express.Router();
 router.post('/join', async (req, res, next) => {
     try {
         const { email, nick } = req.body;
-
         const exEmail = await User.findOne({ where: { email } });
         const exNick = await User.findOne({ where: { nick } });
 
@@ -26,20 +25,20 @@ router.post('/join', async (req, res, next) => {
             });
         } else {
             const { password, grade, gender } = req.body;
-            const tempPassword = null;
             const dealLogs = JSON.stringify({
                 logs: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             });
             const rentLogs = dealLogs;
+
             await User.create({
                 email,
-                tempPassword,
                 nick,
                 grade,
                 gender,
                 dealLogs,
                 rentLogs,
                 password: await bcrypt.hash(password, 12),
+                tempPassword: '',
             });
 
             return res.status(200).json({
@@ -58,11 +57,7 @@ router.patch('/password', verifyToken, async (req, res, next) => {
         const { email } = req.user;
         const password = await bcrypt.hash(req.body.password, 12);
 
-        await User.update({
-            password,
-        }, {
-            where: { email },
-        });
+        await User.update({ password }, { where: { email } });
 
         return res.status(200).json({
             success: true,
@@ -76,7 +71,7 @@ router.patch('/password', verifyToken, async (req, res, next) => {
 
 router.patch('/nick', verifyToken, async (req, res, next) => {
     try {
-        const { userId, email } = req.user;
+        const { email } = req.user;
         const { nick } = req.body;
         const exNick = await User.findOne({ where: { nick } });
 
@@ -86,29 +81,9 @@ router.patch('/nick', verifyToken, async (req, res, next) => {
                 message: 'existent nick',
             });
         } else {
-            await DealPost.update({
-                author: nick,
-            }, {
-                where: { userId },
-            });
+            await Comment.update({ nick }, { where: { email } });
 
-            await RentPost.update({
-                author: nick,
-            }, {
-                where: { userId },
-            });
-
-            await Comment.update({
-                nick,
-            }, {
-                where: { email },
-            });
-
-            await User.update({
-                nick,
-            }, {
-                where: { email },
-            });
+            await User.update({ nick }, { where: { email }, });
 
             return res.status(200).json({
                 success: true,
