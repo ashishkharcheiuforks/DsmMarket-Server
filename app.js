@@ -1,7 +1,6 @@
 const morgan = require('morgan');
 const { sequelize } = require('./models');
 const express = require('express');
-const passport = require('passport');
 const http = require('http');
 const { ChatLog } = require('./models');
 
@@ -12,7 +11,6 @@ const getRouter = require('./routes/get');
 const postRouter = require('./routes/post');
 const reportRouter = require('./routes/report');
 const roomRouter = require('./routes/room');
-const passportConfig = require('./passport');
 const cors = require('cors');
 
 const app = express();
