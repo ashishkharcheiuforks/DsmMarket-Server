@@ -18,15 +18,17 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true,
         },
-        user1: {
-            type: DataTypes.STRING(40),
+        user1 : {
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
-        user2: {
-            type: DataTypes.STRING(40),
+        user2 : {
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
     }, {
+        charset: 'utf8',
+        collation: 'utf8_general_ci',
         timestamps: true,
     });
 };
