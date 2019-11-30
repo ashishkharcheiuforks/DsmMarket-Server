@@ -61,7 +61,7 @@ router.post('/login', async (req, res, next) => {
     }
 });
 
-router.get('/login', verifyToken, async (req, res) => {
+router.get('/login', verifyToken, async (req, res, next) => {
     try {
         const { password } = req.query;
 
