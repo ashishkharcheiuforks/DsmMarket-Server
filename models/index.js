@@ -25,9 +25,7 @@ db.User.hasMany(db.DealPost);
 db.DealPost.belongsTo(db.User);
 db.User.hasMany(db.RentPost);
 db.RentPost.belongsTo(db.User);
-db.DealPost.hasMany(db.Comment);
-db.Comment.belongsTo(db.DealPost);
-db.RentPost.hasMany(db.Comment);
-db.Comment.belongsTo(db.RentPost);
+db.User.hasMany(db.Comment);
+db.Comment.belongsTo(db.User);
 
 module.exports = db;
