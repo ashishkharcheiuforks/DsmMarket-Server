@@ -1,11 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
     return sequelize.define('comment', {
-        email: {
-            type: DataTypes.STRING(40),
+        postId: {
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
-        nick: {
-            type: DataTypes.STRING(40),
+        type: {
+            type: DataTypes.INTEGER,
             allowNull: false,
         },
         content: {
