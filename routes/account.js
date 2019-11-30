@@ -17,35 +17,34 @@ router.post('/join', async (req, res, next) => {
                 success: false,
                 message: 'existent email',
             });
-        }
-        else if (exNick) {
+        } else if (exNick) {
             return res.status(403).json({
                 success: false,
                 message: 'existent nick',
             });
-        } else {
-            const { password, grade, gender } = req.body;
-            const dealLogs = JSON.stringify({
-                logs: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            });
-            const rentLogs = dealLogs;
-            
-            await User.create({
-                email,
-                nick,
-                grade,
-                gender,
-                dealLogs,
-                rentLogs,
-                password: await bcrypt.hash(password, 12),
-                tempPassword: '',
-            });
-
-            return res.status(200).json({
-                success: true,
-                message: 'join success',
-            });
         }
+
+        const { password, grade, gender } = req.body;
+        const dealLogs = JSON.stringify({
+            logs: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        });
+        const rentLogs = dealLogs;
+
+        await User.create({
+            email,
+            nick,
+            grade,
+            gender,
+            dealLogs,
+            rentLogs,
+            password: await bcrypt.hash(password, 12),
+            tempPassword: '',
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'join success',
+        });
     } catch (err) {
         console.error(err);
         return next(err);
