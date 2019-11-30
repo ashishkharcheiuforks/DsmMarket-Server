@@ -15,7 +15,6 @@ const cors = require('cors');
 
 const app = express();
 sequelize.sync();
-passportConfig(passport);
 
 app.set('port', process.env.PORT | 8001);
 
