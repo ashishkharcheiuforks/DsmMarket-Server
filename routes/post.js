@@ -127,25 +127,17 @@ router.delete('/deal/:postId', verifyToken, async (req, res, next) => {
             }
         });
 
-        const { roomId } = await Room.findOne({
-            where: { postId, type: 0 },
-        });
+        const { roomId } = await Room.findOne({ where: { postId, type: 0 } });
 
-        await Room.destroy({
-            where: { postId, type: 0 },
-        });
+        await Room.destroy({ where: { postId, type: 0 } });
 
-        await ChatLog.destroy({
-            where: { roomId },
-        });
+        await ChatLog.destroy({ where: { roomId } });
 
-        await Interest.destroy({
-            where: { postId, type: 0 },
-        });
+        await Interest.destroy({ where: { postId, type: 0 } });
 
-        await DealPost.destroy({
-            where: { postId },
-        });
+        await Comment.destroy({ where: { postId, type: 0 } });
+
+        await DealPost.destroy({ where: { postId } });
 
         return res.status(200).json({
             success: true,
@@ -167,25 +159,17 @@ router.delete('/rent/:postId', verifyToken, async (req, res, next) => {
             Key: img.split('/')[3],
         });
 
-        const { roomId } = await Room.findOne({
-            where: { postId, type: 1 },
-        });
+        const { roomId } = await Room.findOne({ where: { postId, type: 0 } });
 
-        await Room.destroy({
-            where: { postId, type: 1 },
-        });
+        await Room.destroy({ where: { postId, type: 1 } });
 
-        await ChatLog.destroy({
-            where: { roomId },
-        });
+        await ChatLog.destroy({ where: { roomId } });
 
-        await Interest.destroy({
-            where: { postId, type: 1 },
-        });
+        await Interest.destroy({ where: { postId, type: 1 } });
 
-        await RentPost.destroy({
-            where: { id },
-        });
+        await Comment.destroy({ where: { postId, type: 1 } });
+
+        await RentPost.destroy({ where: { postId } });
 
         return res.status(200).json({
             success: true,
@@ -255,29 +239,19 @@ router.post('/comment', verifyToken, async (req, res, next) => {
     try {
         const { userId } = req.user;
         const { postId, content, type } = req.body;
-        const { email, nick } = await User.findByPk(userId);
         const isExist = Number(type) ? await RentPost.findByPk(postId) : await DealPost.findByPk(postId);
 
         if (isExist) {
-            if (Number(type)) {
-                await Comment.create({
-                    email,
-                    nick,
-                    content,
-                    rentPostId: postId,
-                });
-            } else {
-                await Comment.create({
-                    email,
-                    nick,
-                    content,
-                    dealPostId: postId,
-                });
-            }
+            await Comment.create({
+                userId,
+                postId,
+                type,
+                content,
+            });
 
             return res.status(200).json({
                 success: true,
-                message: 'non-existent post',
+                message: 'comment success',
             });
         } else {
             return res.status(410).json({

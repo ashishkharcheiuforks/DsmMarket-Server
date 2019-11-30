@@ -6,8 +6,8 @@ const router = express.Router();
 
 router.post('/', verifyToken, async (req, res, next) => {
     try {
+        const user1 = req.user.userId;
         const { postId, type } = req.body;
-        const user1 = req.user.email;
         const post = Number(type) ? await RentPost.findByPk(postId) : await DealPost.findByPk(postId);
 
         if (post) {
@@ -22,15 +22,12 @@ router.post('/', verifyToken, async (req, res, next) => {
                     message: 'existent room',
                 });
             } else {
-                const { img, author } = post;
-                const { email } = await User.findOne({
-                    where: { nick: author },
-                });
+                const { img, userId } = post;
                 const { roomId } = await Room.create({
                     postId,
                     type,
                     user1,
-                    user2: email,
+                    user2: userId,
                     picture: img.split('\n')[0],
                 });
 
@@ -54,23 +51,20 @@ router.post('/', verifyToken, async (req, res, next) => {
 
 router.get('/', verifyToken, async (req, res, next) => {
     try {
-        const { email } = req.user;
+        const { userId } = req.user;
         const rooms = await Room.findAll({
-            where: { [Op.or]: { user1: email, user2: email } },
+            where: { [Op.or]: { user1: userId, user2: userId } },
         });
         const list = [];
 
         for (const room of rooms) {
-            const opponent = room.user1 === email ? await User.findOne({
-                where: { email: room.user2 },
-            }) : await User.findOne({
-                where: { email: room.user1 },
-            });
+            const { user1, user2, picture, roomId } = room;
+            const { nick } = user1 === userId ? await User.findByPk(user2) : await User.findByPk(user1);
 
             list.push({
-                roomName: opponent.nick,
-                picture: room.picture,
-                roomId: room.roomId,
+                roomId,
+                picture,
+                roomName: nick,
             });
         }
 
