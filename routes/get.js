@@ -271,7 +271,7 @@ router.get('/comment', verifyToken, async (req, res, next) => {
             const comments = await Comment.findAll({ where: { postId, type }, order: [['createdAt', 'DESC']] });
             const list = [];
 
-            comments.forEach(comment => {
+            for (const comment of comments) {
                 const { content, createdAt } = comment;
                 const { nick } = await User.findOne({ where: { id: comment.userId } });
 
@@ -281,7 +281,7 @@ router.get('/comment', verifyToken, async (req, res, next) => {
                     createdAt,
                     isMe: comment.userId === userId ? true : false,
                 });
-            });
+            }
 
             return res.status(200).json({
                 list,
