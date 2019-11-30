@@ -17,8 +17,8 @@ const transporter = nodemailer.createTransport({
 
 router.post('/login', async (req, res, next) => {
     try {
-        const {email, password} = req.body;
-        const user = await User.findOne({ where: { email }, attributes: ['password', 'tempPassword'] });
+        const { email, password } = req.body;
+        const user = await User.findOne({ where: { email }});
 
         if (user) {
             const isTruePassword = await bcrypt.compare(password, user.password);
@@ -41,7 +41,7 @@ router.post('/login', async (req, res, next) => {
                     {
                         expiresIn: '100m',
                     });
-    
+
                 return res.status(200).json({
                     access_token,
                     refresh_token,
@@ -103,7 +103,7 @@ router.get('/mail', async (req, res, next) => {
         const { email } = req.query;
         const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
         let password = ''
-        
+
         for (let i = 0; i < 10; i++) {
             password += str[Math.floor(Math.random() * str.length)];
         }
