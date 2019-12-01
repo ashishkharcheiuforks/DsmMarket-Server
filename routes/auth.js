@@ -7,11 +7,12 @@ const { verifyToken } = require('./middlewares');
 require('dotenv').config();
 
 const router = express.Router();
+const { SERVICE, EMAIL, PASSWORD } = process.env;
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: SERVICE,
     auth: {
-        user: 'dsmplanb@gmail.com',
-        pass: process.env.GMAIL_PASSWORD,
+        user: EMAIL,
+        pass: PASSWORD,
     }
 });
 
@@ -109,8 +110,8 @@ router.get('/mail', async (req, res, next) => {
         }
 
         const mailOptions = {
-            from: 'dsmplanb@gmail.com',
-            to: req.query.email,
+            from: EMAIL,
+            to: email,
             subject: '[대마장터] 임시 비밀번호를 확인하세요.',
             html: `<h1>안녕하세요. 대마장터입니다.<h1>
             <h1>하단의 임시 비밀번호로 로그인하세요.<h1>
