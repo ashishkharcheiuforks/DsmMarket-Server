@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
 router.post('/login', async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ where: { email }});
+        const user = await User.findOne({ where: { email } });
 
         if (user) {
             const isTruePassword = await bcrypt.compare(password, user.password);
@@ -102,30 +102,39 @@ router.get('/login', verifyToken, async (req, res, next) => {
 router.get('/mail', async (req, res, next) => {
     try {
         const { email } = req.query;
-        const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
-        let password = ''
+        const exUser = await User.findOne({ where: email });
 
-        for (let i = 0; i < 10; i++) {
-            password += str[Math.floor(Math.random() * str.length)];
+        if (exUser) {
+            const str = 'ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+            let password = ''
+
+            for (let i = 0; i < 10; i++) {
+                password += str[Math.floor(Math.random() * str.length)];
+            }
+
+            const mailOptions = {
+                from: EMAIL,
+                to: email,
+                subject: '[대마장터] 임시 비밀번호를 확인하세요.',
+                html: `<h1>안녕하세요. 대마장터입니다.<h1>
+                <h1>하단의 임시 비밀번호로 로그인하세요.<h1>
+                <h3>임시 비밀번호 : ${password}<h3>`,
+            };
+            const tempPassword = await bcrypt.hash(password, 12);
+
+            await User.update({ tempPassword }, { where: { email } });
+
+            await transporter.sendMail(mailOptions);
+
+            return res.status(200).json({
+                success: true,
+                message: 'send success',
+            });
         }
 
-        const mailOptions = {
-            from: EMAIL,
-            to: email,
-            subject: '[대마장터] 임시 비밀번호를 확인하세요.',
-            html: `<h1>안녕하세요. 대마장터입니다.<h1>
-            <h1>하단의 임시 비밀번호로 로그인하세요.<h1>
-            <h3>임시 비밀번호 : ${password}<h3>`,
-        };
-        const tempPassword = await bcrypt.hash(password, 12);
-
-        await User.update({ tempPassword }, { where: { email } });
-
-        await transporter.sendMail(mailOptions);
-
-        return res.status(200).json({
-            success: true,
-            message: 'send success',
+        return res.status(403).json({
+            success: false,
+            message: 'non-existent email',
         });
     } catch (err) {
         console.error(err);
