@@ -418,7 +418,7 @@ router.get('/list/related', verifyToken, async (req, res, next) => {
     }
 });
 
-router.get('/list/recommend', verifyToken, async (req, res, next) => {
+/*router.get('/list/recommend', verifyToken, async (req, res, next) => {
     const { userId } = req.user;
     try {
         const posts = await axios.get('http://18.223.169.217/recommend', {
@@ -450,7 +450,7 @@ router.get('/list/recommend', verifyToken, async (req, res, next) => {
         console.error(err);
         return next(err);
     }
-});
+});*/
 
 router.get('/user/list/deal', verifyToken, async (req, res, next) => {
     try {
